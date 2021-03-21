@@ -1,0 +1,17 @@
+{
+	"manifest_version": 2,
+	"name": "New Tab Bookmarks",
+	"version": "1.0",
+	"description": "Show bookmarks bar only on new tab page.",
+	"homepage_url": "https://github.com/Zren/firefox-addon-newtabbookmarks",
+	"icons": {
+		"48": "icons/bookmark-star-on-tray.svg"
+	},
+	"permissions": [
+		"bookmarks",
+		"storage"
+	],
+	"chrome_url_overrides" : {
+		"newtab": "newtab.html"
+	}
+}

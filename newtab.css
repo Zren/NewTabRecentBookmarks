@@ -1,0 +1,89 @@
+* {
+	box-sizing: border-box;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Ubuntu', 'Helvetica Neue', sans-serif;
+}
+
+html, body {
+	margin: 0;
+	padding: 0;
+}
+
+#topnav {
+	width: 100%;
+	height: 40px;
+	padding: 4px;
+}
+
+input#query {
+	display: block;
+	width: calc(80vw);
+	margin: 0 auto;
+	max-width: 800px;
+}
+
+#kanban {
+	width: 100%;
+	height: calc(100vh - 40px);
+	margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+	flex-wrap: wrap;
+	align-content: center;
+	overflow-x: auto;
+}
+
+@media (min-width: 1024px) {
+	#kanban {
+		/*max-width: 80vw;*/
+	}
+}
+
+.kanban-group {
+	max-width: 320px;
+	padding: 0 10px 20px 10px;
+}
+
+.kanban-group h3 {
+	margin: 0.2rem 0;
+}
+
+
+.place-entry {
+	font-size: 1rem;
+	display: block;
+	width: 100%;
+	white-space: nowrap;
+	overflow-x: hidden;
+	text-overflow: ellipsis;
+	padding: 2px;
+}
+
+a.place-entry {
+	color: initial;
+	text-decoration: none;
+}
+a.place-entry:hover .place-label {
+	color: initial;
+	text-decoration: underline;
+}
+
+
+.place-icon {
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	margin-right: 4px;
+	border-radius: 4px;
+	background-image: url(icons/defaultFaviconOverlay.svg);
+	background-repeat: no-repeat;
+	background-position: center;
+}
+.place-icon[container] {
+	background-image: url(icons/folder.svg);
+}
+
+.place-icon,
+.place-label {
+	vertical-align: middle;
+}
+
