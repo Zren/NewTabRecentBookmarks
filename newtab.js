@@ -1,4 +1,16 @@
 
+function hslFromHostname(urlHostname) {
+	var hostname = urlHostname.replace(/^www\./, '')
+	var aCode = 'a'.charCodeAt(0)
+	var zCode = 'z'.charCodeAt(0)
+	var hueRatio = (hostname.toLowerCase().charCodeAt(0) - aCode) / (zCode - aCode)
+	var hue = Math.round(255 * hueRatio)
+	var satRatio = (hostname.toLowerCase().charCodeAt(1) - aCode) / (zCode - aCode)
+	var sat = 60 + Math.round(40 * satRatio)
+	var ligRatio = (hostname.toLowerCase().charCodeAt(2) - aCode) / (zCode - aCode)
+	var lig = 10 + Math.round(30 * satRatio)
+	return 'hsl(' + hue + ', ' + sat + '%, ' + lig + '%)'
+}
 
 function generateList(listName, fetchBookmarksPromise) {
 	fetchBookmarksPromise.then(function onFulfilled(bookmarks) {
@@ -30,16 +42,7 @@ function generateList(listName, fetchBookmarksPromise) {
 			var icon = document.createElement('span')
 			icon.classList.add('place-icon')
 			if (bookmark.type == 'bookmark') {
-				var hostname = entry.hostname.replace(/^www\./, '')
-				var aCode = 'a'.charCodeAt(0)
-				var zCode = 'z'.charCodeAt(0)
-				var hueRatio = (hostname.toLowerCase().charCodeAt(0) - aCode) / (zCode - aCode)
-				var hue = Math.round(255 * hueRatio)
-				var satRatio = (hostname.toLowerCase().charCodeAt(1) - aCode) / (zCode - aCode)
-				var sat = 60 + Math.round(40 * satRatio)
-				var ligRatio = (hostname.toLowerCase().charCodeAt(2) - aCode) / (zCode - aCode)
-				var lig = 10 + Math.round(30 * satRatio)
-				var iconBgColor = 'hsl(' + hue + ', ' + sat + '%, ' + lig + '%)'
+				var iconBgColor = hslFromHostname(entry.hostname)
 				icon.style.backgroundColor = iconBgColor
 			} else if (bookmark.type == 'folder') {
 				icon.setAttribute('container', 'true')
