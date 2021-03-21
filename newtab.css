@@ -16,6 +16,19 @@ html, body {
 	justify-content: center;
 }
 
+.kanban-group-heading {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+.kanban-group-heading .toggle-pin {
+	margin-left: 4px;
+}
+.kanban-group-heading:not(:hover) .toggle-pin {
+	display: none;
+}
+
+.kanban-group-heading .icon,
 .place-entry .icon {
 	background-position: center;
 	background-repeat: no-repeat;
@@ -63,6 +76,11 @@ input#query {
 	margin: 0.2rem 0;
 }
 
+.place-list {
+	display: flex;
+	flex-direction: column;
+	overflow-y: hidden;
+}
 
 .place-entry {
 	font-size: 1rem;
@@ -72,6 +90,7 @@ input#query {
 	overflow-x: hidden;
 	text-overflow: ellipsis;
 	padding: 2px;
+	flex-shrink: 1;
 }
 
 a.place-entry {

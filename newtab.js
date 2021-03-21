@@ -75,7 +75,6 @@ function generatePlaceList(placeList, bookmarks) {
 			pinButton.addEventListener('click', function(){
 				var entry = this.parentNode
 				var bookmarkId = entry.getAttribute('data-id')
-				console.log('clicked', entry, 'bookmarkId', bookmarkId)
 				this.classList.toggle('pinned')
 				if (bookmarkId) {
 					togglePinnedFolder(bookmarkId)
@@ -100,8 +99,29 @@ function generateGroup(listId, listName, bookmarks) {
 	group.setAttribute('data-id', listId)
 	kanban.appendChild(group)
 
-	var heading = document.createElement('h3')
-	heading.textContent = listName
+	var heading = document.createElement('div')
+	heading.classList.add('kanban-group-heading')
+
+	var headingLabel = document.createElement('h3')
+	headingLabel.classList.add('kanban-group-label')
+	headingLabel.textContent = listName
+	heading.appendChild(headingLabel)
+
+	if (listId != 'search' && listId != 'recent') {
+		var pinButton = document.createElement('button')
+		pinButton.classList.add('icon')
+		pinButton.classList.add('toggle-pin')
+		pinButton.classList.add('pinned')
+		pinButton.addEventListener('click', function(){
+			var group = this.parentNode.parentNode
+			var bookmarkId = group.getAttribute('data-id')
+			if (bookmarkId) {
+				togglePinnedFolder(bookmarkId)
+			}
+		})
+		heading.appendChild(pinButton)
+	}
+
 	group.appendChild(heading)
 
 	var placeList = document.createElement('div')
@@ -123,7 +143,7 @@ function generateFolderGroup(folderId) {
 }
 
 function generateRecentGroup() {
-	var numBookmarks = 4 * 8
+	var numBookmarks = 36 // 4 * 8
 	browser.bookmarks.getRecent(numBookmarks).then(function(bookmarks){
 		generateGroup('recent', 'Recent', bookmarks)
 	})
