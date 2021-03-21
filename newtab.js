@@ -13,50 +13,50 @@ function hslFromHostname(urlHostname) {
 }
 
 function generateList(listName, bookmarks) {
-		for (bookmark of bookmarks) {
-			console.log(bookmark.url, bookmark)
+	for (bookmark of bookmarks) {
+		console.log(bookmark.url, bookmark)
+	}
+
+
+	var kanban = document.querySelector('#kanban')
+
+	var group = document.createElement('div')
+	group.classList.add('kanban-group')
+	kanban.appendChild(group)
+
+	var heading = document.createElement('h3')
+	heading.textContent = listName
+	group.appendChild(heading)
+
+	var placeList = document.createElement('div')
+	placeList.classList.add('place-list')
+	group.appendChild(placeList)
+
+	for (bookmark of bookmarks) {
+		var entry = document.createElement('a')
+		entry.classList.add('place-entry')
+		if (bookmark.url) {
+			entry.setAttribute('href', bookmark.url)
 		}
+		entry.setAttribute('title', bookmark.title + (bookmark.url ? '\n' + bookmark.url : ''))
 
-
-		var kanban = document.querySelector('#kanban')
-
-		var group = document.createElement('div')
-		group.classList.add('kanban-group')
-		kanban.appendChild(group)
-
-		var heading = document.createElement('h3')
-		heading.textContent = listName
-		group.appendChild(heading)
-
-		var placeList = document.createElement('div')
-		placeList.classList.add('place-list')
-		group.appendChild(placeList)
-
-		for (bookmark of bookmarks) {
-			var entry = document.createElement('a')
-			entry.classList.add('place-entry')
-			if (bookmark.url) {
-				entry.setAttribute('href', bookmark.url)
-			}
-			entry.setAttribute('title', bookmark.title + (bookmark.url ? '\n' + bookmark.url : ''))
-
-			var icon = document.createElement('span')
-			icon.classList.add('place-icon')
-			if (bookmark.type == 'bookmark') {
-				var iconBgColor = hslFromHostname(entry.hostname)
-				icon.style.backgroundColor = iconBgColor
-			} else if (bookmark.type == 'folder') {
-				icon.setAttribute('container', 'true')
-			}
-			entry.appendChild(icon)
-
-			var label = document.createElement('span')
-			label.classList.add('place-label')
-			label.textContent = bookmark.title
-			entry.appendChild(label)
-
-			placeList.appendChild(entry)
+		var icon = document.createElement('span')
+		icon.classList.add('place-icon')
+		if (bookmark.type == 'bookmark') {
+			var iconBgColor = hslFromHostname(entry.hostname)
+			icon.style.backgroundColor = iconBgColor
+		} else if (bookmark.type == 'folder') {
+			icon.setAttribute('container', 'true')
 		}
+		entry.appendChild(icon)
+
+		var label = document.createElement('span')
+		label.classList.add('place-label')
+		label.textContent = bookmark.title
+		entry.appendChild(label)
+
+		placeList.appendChild(entry)
+	}
 }
 
 function generateFolderList(folderTitle) {
