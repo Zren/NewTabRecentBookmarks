@@ -35,23 +35,17 @@ input#query {
 #kanban {
 	width: 100%;
 	height: calc(100vh - 40px);
-	margin: 0 auto;
 	display: flex;
 	flex-direction: column;
 	flex-wrap: wrap;
-	align-content: center;
+	align-content: safe center;
 	overflow-x: auto;
-}
-
-@media (min-width: 1024px) {
-	#kanban {
-		/*max-width: 80vw;*/
-	}
+	row-gap: 20px;
 }
 
 .kanban-group {
 	max-width: 320px;
-	padding: 0 10px 20px 10px;
+	padding: 0 10px;
 }
 #kanban:not(.searching) .kanban-group[data-id="search"],
 #kanban.searching .kanban-group:not([data-id="search"]) {
