@@ -72,6 +72,11 @@ input#query {
 	display: none;
 }
 
+#kanban[loading] .kanban-group {
+	/* Display=none will stop icons from loading, so use opacity=0. */
+	opacity: 0;
+}
+
 .kanban-group h3 {
 	margin: 0.2rem 0;
 }

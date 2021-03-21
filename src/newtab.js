@@ -5,7 +5,7 @@
 var browserAPI = chrome
 var isChrome = typeof browser === 'undefined'
 
-
+var pageLoaded = false
 var cache = {
 	pinnedFolders: [],
 }
@@ -46,7 +46,7 @@ function hslFromHostname(urlHostname) {
 
 function generatePlaceList(placeList, bookmarks) {
 	for (bookmark of bookmarks) {
-		console.log('generatePlaceList', bookmark)
+		// console.log('generatePlaceList', bookmark)
 		// Chrome does not set bookmark.type
 		var isBookmark = (typeof bookmark.type !== 'undefined'
 			? bookmark.type === 'bookmark' // Firefox
@@ -156,15 +156,28 @@ function generateGroup(listId, listName, bookmarks) {
 	generatePlaceList(placeList, bookmarks)
 }
 
-function generateFolderGroup(folderId) {
-	browserAPI.bookmarks.get(folderId, function(getBookmarks){
-		var folderBookmark = getBookmarks[0]
-		// console.log('folderBookmark', folderBookmark)
-		var genListFunc = generateGroup.bind(this, folderBookmark.id, folderBookmark.title)
-		browserAPI.bookmarks.getChildren(folderBookmark.id, function(bookmarks){
-			bookmarks.reverse()
-			genListFunc(bookmarks)
-		})
+function generateFolderGroup(folderBookmark, callback, bookmarks) {
+	bookmarks.reverse()
+	generateGroup(folderBookmark.id, folderBookmark.title, bookmarks)
+	callback()
+}
+
+function generateFolderGroupList(folderIdList, callback) {
+	browserAPI.bookmarks.get(folderIdList, function(folderBookmarkList){
+		var groupsDone = 0
+		function onGroupDone() {
+			groupsDone += 1
+			// console.log('onGroupDone', groupsDone, '/', folderIdList.length)
+			if (groupsDone >= folderIdList.length) {
+				callback()
+			}
+		}
+		var promiseList = []
+		for (var folderBookmark of folderBookmarkList) {
+			// console.log('folderBookmark', folderBookmark)
+			var genListFunc = generateFolderGroup.bind(this, folderBookmark, onGroupDone)
+			browserAPI.bookmarks.getChildren(folderBookmark.id, genListFunc)
+		}
 	})
 }
 
@@ -232,9 +245,15 @@ function generatePinnedFolderGroups() {
 	}, function(items){
 		// console.log('onGet', items.pinnedFolders)
 		cache.pinnedFolders = items.pinnedFolders
-		for (var folderId of items.pinnedFolders) {
-			generateFolderGroup(folderId)
-		}
+		generateFolderGroupList(items.pinnedFolders, function(){
+			if (!pageLoaded) {
+				requestAnimationFrame(function(){
+					var kanban = document.querySelector('#kanban')
+					kanban.removeAttribute('loading')
+					pageLoaded = true
+				})
+			}
+		})
 	})
 }
 
