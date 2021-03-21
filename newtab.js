@@ -1,4 +1,6 @@
-var cache = {}
+var cache = {
+	pinnedFolders: [],
+}
 
 // https://stackoverflow.com/questions/24004791/can-someone-explain-the-debounce-function-in-javascript
 function debounce(func, wait, immediate) {
@@ -36,20 +38,24 @@ function hslFromHostname(urlHostname) {
 
 function generatePlaceList(placeList, bookmarks) {
 	for (bookmark of bookmarks) {
-		var entry = document.createElement('a')
-		entry.classList.add('place-entry')
-		if (bookmark.url) {
+		var entry
+		if (bookmark.type == 'bookmark') {
+			entry = document.createElement('a')
 			entry.setAttribute('href', bookmark.url)
+			entry.setAttribute('title', bookmark.title + (bookmark.url ? '\n' + bookmark.url : ''))
+		} else if (bookmark.type == 'folder') {
+			entry = document.createElement('div')
+			entry.setAttribute('container', 'true')
 		}
-		entry.setAttribute('title', bookmark.title + (bookmark.url ? '\n' + bookmark.url : ''))
+		entry.setAttribute('data-id', bookmark.id)
+		entry.classList.add('place-entry')
 
 		var icon = document.createElement('span')
+		icon.classList.add('icon')
 		icon.classList.add('place-icon')
 		if (bookmark.type == 'bookmark') {
 			var iconBgColor = hslFromHostname(entry.hostname)
 			icon.style.backgroundColor = iconBgColor
-		} else if (bookmark.type == 'folder') {
-			icon.setAttribute('container', 'true')
 		}
 		entry.appendChild(icon)
 
@@ -57,6 +63,26 @@ function generatePlaceList(placeList, bookmarks) {
 		label.classList.add('place-label')
 		label.textContent = bookmark.title
 		entry.appendChild(label)
+
+		if (bookmark.type == 'folder') {
+			var isPinned = cache.pinnedFolders.indexOf(bookmark.id) >= 0
+			var pinButton = document.createElement('button')
+			pinButton.classList.add('icon')
+			pinButton.classList.add('toggle-pin')
+			if (isPinned) {
+				pinButton.classList.add('pinned')
+			}
+			pinButton.addEventListener('click', function(){
+				var entry = this.parentNode
+				var bookmarkId = entry.getAttribute('data-id')
+				console.log('clicked', entry, 'bookmarkId', bookmarkId)
+				this.classList.toggle('pinned')
+				if (bookmarkId) {
+					togglePinnedFolder(bookmarkId)
+				}
+			})
+			entry.appendChild(pinButton)
+		}
 
 		placeList.appendChild(entry)
 	}
@@ -185,8 +211,33 @@ function setPinnedFolders(pinnedFolders) {
 		pinnedFolders: pinnedFolders,
 	}).then(function(items){
 		console.log('onSet', items.pinnedFolders.oldValue, items.pinnedFolders.newValue)
-		updatePinnedFolderGroups()
+		// updatePinnedFolderGroups()
 	})
+}
+
+function addPinnedFolder(folderId) {
+	var wasPinned = cache.pinnedFolders.indexOf(folderId) >= 0
+	if (!wasPinned) {
+		cache.pinnedFolders.push(folderId)
+		setPinnedFolders(cache.pinnedFolders)
+	}
+}
+function removePinnedFolder(folderId) {
+	var index = cache.pinnedFolders.indexOf(folderId)
+	var wasPinned = index >= 0
+	if (wasPinned) {
+		cache.pinnedFolders.splice(index, 1) // Remove
+		setPinnedFolders(cache.pinnedFolders)
+	}
+}
+function togglePinnedFolder(folderId) {
+	var wasPinned = cache.pinnedFolders.indexOf(folderId) >= 0
+	console.log('togglePinnedFolder', folderId, 'wasPinned', wasPinned)
+	if (wasPinned) {
+		removePinnedFolder(folderId)
+	} else {
+		addPinnedFolder(folderId)
+	}
 }
 
 function init() {

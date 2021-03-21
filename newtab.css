@@ -16,13 +16,19 @@ html, body {
 	justify-content: center;
 }
 
-.icon-bookmark {
-	background-image: url(icons/bookmark.svg);
+.place-entry .icon {
 	background-position: center;
 	background-repeat: no-repeat;
 	background-size: contain;
-	width: 24px;
-	height: 100%;
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	min-width: 20px;
+	max-width: 20px;
+	border-radius: 4px;
+}
+.icon-bookmark {
+	background-image: url(icons/bookmark.svg);
 	margin-right: 4px;
 	filter: invert() brightness(0.6);
 }
@@ -44,6 +50,7 @@ input#query {
 }
 
 .kanban-group {
+	width: 320px;
 	max-width: 320px;
 	padding: 0 10px;
 }
@@ -59,7 +66,7 @@ input#query {
 
 .place-entry {
 	font-size: 1rem;
-	display: block;
+	display: flex;
 	width: 100%;
 	white-space: nowrap;
 	overflow-x: hidden;
@@ -76,18 +83,21 @@ a.place-entry:hover .place-label {
 	text-decoration: underline;
 }
 
+.kanban-group:not([data-id="search"]) .place-entry[container] {
+	display: none;
+}
+
 
 .place-icon {
 	display: inline-block;
 	width: 20px;
 	height: 20px;
 	margin-right: 4px;
-	border-radius: 4px;
 	background-image: url(icons/defaultFaviconOverlay.svg);
 	background-repeat: no-repeat;
 	background-position: center;
 }
-.place-icon[container] {
+.place-entry[container] .place-icon {
 	background-image: url(icons/folder.svg);
 }
 
@@ -96,3 +106,18 @@ a.place-entry:hover .place-label {
 	vertical-align: middle;
 }
 
+.place-label {
+	flex: 1;
+}
+
+.toggle-pin {
+	border: none;
+	background-color: transparent;
+	background-image: url(icons/pin-tab.svg);
+}
+.toggle-pin.pinned {
+	background-image: url(icons/pin-12.svg);
+}
+.toggle-pin:hover {
+	background-color: #cccccc;
+}
