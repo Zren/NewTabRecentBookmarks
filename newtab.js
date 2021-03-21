@@ -1,3 +1,4 @@
+var cache = {}
 
 // https://stackoverflow.com/questions/24004791/can-someone-explain-the-debounce-function-in-javascript
 function debounce(func, wait, immediate) {
@@ -62,9 +63,9 @@ function generatePlaceList(placeList, bookmarks) {
 }
 
 function generateGroup(listId, listName, bookmarks) {
-	for (bookmark of bookmarks) {
-		console.log(bookmark.url, bookmark)
-	}
+	// for (bookmark of bookmarks) {
+	// 	console.log(bookmark.url, bookmark)
+	// }
 
 	var kanban = document.querySelector('#kanban')
 
@@ -84,12 +85,10 @@ function generateGroup(listId, listName, bookmarks) {
 	generatePlaceList(placeList, bookmarks)
 }
 
-function generateFolderGroup(folderTitle) {
-	browser.bookmarks.search({
-		title: folderTitle,
-	}).then(function(searchResults){
-		var folderBookmark = searchResults[0]
-		console.log('folderBookmark', folderBookmark)
+function generateFolderGroup(folderId) {
+	browser.bookmarks.get(folderId).then(function(getBookmarks){
+		var folderBookmark = getBookmarks[0]
+		// console.log('folderBookmark', folderBookmark)
 		var genListFunc = generateGroup.bind(this, folderBookmark.id, folderBookmark.title)
 		browser.bookmarks.getChildren(folderBookmark.id).then(function(bookmarks){
 			return bookmarks.reverse()
@@ -148,17 +147,64 @@ function onQueryChange() {
 	}
 }
 
+function clearFolderGroups() {
+	var selector = '.kanban-group:not([data-id="search"]):not([data-id="recent"])'
+	document.querySelectorAll(selector).forEach(function(group){
+		group.remove()
+	})
+}
+
+function generatePinnedFolderGroups() {
+	browser.storage.local.get('pinnedFolders').then(function(items){
+		// console.log('onGet', items.pinnedFolders)
+		cache.pinnedFolders = items.pinnedFolders
+		for (var folderId of items.pinnedFolders) {
+			generateFolderGroup(folderId)
+		}
+	})
+}
+
+function updatePinnedFolderGroups() {
+	clearFolderGroups()
+	generatePinnedFolderGroups()
+}
+
+function onStorageChange(changes, area) {
+	// console.log('onStorageChange', changes, area)
+	if (typeof changes.pinnedFolders !== 'undefined') {
+		updatePinnedFolderGroups()
+	}
+}
+
+function loadConfig() {
+	updatePinnedFolderGroups()
+}
+
+function setPinnedFolders(pinnedFolders) {
+	browser.storage.local.set({
+		pinnedFolders: pinnedFolders,
+	}).then(function(items){
+		console.log('onSet', items.pinnedFolders.oldValue, items.pinnedFolders.newValue)
+		updatePinnedFolderGroups()
+	})
+}
+
 function init() {
 	generateSearchGroup()
 	generateRecentGroup()
-	generateFolderGroup('Streams')
-	generateFolderGroup('Sleep')
-	generateFolderGroup('Shows')
-	generateFolderGroup('Ani')
-	generateFolderGroup('Comics')
 
+	browser.storage.onChanged.addListener(onStorageChange)
+	document.addEventListener("DOMContentLoaded", loadConfig)
 	document.querySelector('input#query').addEventListener('change', onQueryChange)
 	document.querySelector('input#query').addEventListener('keydown', onQueryChange)
+
+	// setPinnedFolders([
+	// 	'3z0xRLU4QWU2', // Streams
+	// 	'L9NUdhZ0tQD4', // Sleep
+	// 	'XnA7m2MTSNAR', // Shows
+	// 	'EVPdlTUf45pU', // Ani
+	// 	'GIFtN7RdTmox', // Comics
+	// ])
 }
 
 init()
