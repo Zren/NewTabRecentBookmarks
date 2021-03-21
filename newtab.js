@@ -1,4 +1,25 @@
 
+// https://stackoverflow.com/questions/24004791/can-someone-explain-the-debounce-function-in-javascript
+function debounce(func, wait, immediate) {
+	var timeout
+	return function() {
+		var context = this
+		var args = arguments
+		var later = function() {
+			timeout = null
+			if (!immediate) {
+				func.apply(context, args)
+			}
+		}
+		var callNow = immediate && !timeout
+		clearTimeout(timeout)
+		timeout = setTimeout(later, wait)
+		if (callNow) {
+			func.apply(context, args)
+		}
+	}
+}
+
 function hslFromHostname(urlHostname) {
 	var hostname = urlHostname.replace(/^www\./, '')
 	var aCode = 'a'.charCodeAt(0)
@@ -115,6 +136,17 @@ function doSearch() {
 		updateSearchGroup([])
 	}
 }
+var debouncedDoSearch = debounce(doSearch, 600)
+
+function onQueryChange() {
+	var query = document.querySelector('input#query').value
+	if (query) {
+		debouncedDoSearch()
+	} else {
+		// Immediately clear search
+		doSearch()
+	}
+}
 
 function init() {
 	generateSearchGroup()
@@ -125,7 +157,8 @@ function init() {
 	generateFolderGroup('Ani')
 	generateFolderGroup('Comics')
 
-	document.querySelector('input#query').addEventListener('change', doSearch)
+	document.querySelector('input#query').addEventListener('change', onQueryChange)
+	document.querySelector('input#query').addEventListener('keydown', onQueryChange)
 }
 
 init()
