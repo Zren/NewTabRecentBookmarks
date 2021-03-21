@@ -4,6 +4,12 @@ A simple list of the most recent bookmarks, along with the ability to search for
 
 Favicons are displayed in Chrome. In Firefox, a color is generated based on the website.
 
+![](screenshots/UnpinFolder.png)
+![](screenshots/SearchAndPinFolder.png)
+![](screenshots/TallWindow.png)
+
 ## Chrome
 
 You will need to add `"chrome://favicon/""` to `"permissions": [...]` in the `manifest.json` before installing.
+
+![](screenshots/ChromeWithFavicons.png)
