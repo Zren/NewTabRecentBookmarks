@@ -12,8 +12,7 @@ function hslFromHostname(urlHostname) {
 	return 'hsl(' + hue + ', ' + sat + '%, ' + lig + '%)'
 }
 
-function generateList(listName, fetchBookmarksPromise) {
-	fetchBookmarksPromise.then(function onFulfilled(bookmarks) {
+function generateList(listName, bookmarks) {
 		for (bookmark of bookmarks) {
 			console.log(bookmark.url, bookmark)
 		}
@@ -58,8 +57,6 @@ function generateList(listName, fetchBookmarksPromise) {
 
 			placeList.appendChild(entry)
 		}
-
-	})
 }
 
 function generateFolderList(folderTitle) {
@@ -68,14 +65,19 @@ function generateFolderList(folderTitle) {
 	}).then(function(searchResults){
 		var folderBookmark = searchResults[0]
 		console.log('folderBookmark', folderBookmark)
-		var folderBookmarksPromise = browser.bookmarks.getChildren(folderBookmark.id).then(function(bookmarks){
+		var genListFunc = generateList.bind(this, folderBookmark.title)
+		browser.bookmarks.getChildren(folderBookmark.id).then(function(bookmarks){
 			return bookmarks.reverse()
-		})
-		generateList(folderBookmark.title, folderBookmarksPromise)
+		}).then(genListFunc)
 	})
 }
 
-generateList('Recent', browser.bookmarks.getRecent(4*8))
+function generateRecentList(bookmarks) {
+	generateList('Recent', bookmarks)
+}
+
+browser.bookmarks.getRecent(4*8).then(generateRecentList)
+
 generateFolderList('Streams')
 generateFolderList('Sleep')
 generateFolderList('Shows')
