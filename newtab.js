@@ -1,3 +1,11 @@
+// Firefox doesn't support favicon urls (https://bugzilla.mozilla.org/show_bug.cgi?id=1315616)
+// Firefox does support favicon urls (chrome://favicon).
+// Chrome doesn't return promises, and requires a callback parameter.
+// Chrome also doesn't support 'bookmark.type'
+var browserAPI = chrome
+var isChrome = typeof browser === 'undefined'
+
+
 var cache = {
 	pinnedFolders: [],
 }
@@ -38,14 +46,27 @@ function hslFromHostname(urlHostname) {
 
 function generatePlaceList(placeList, bookmarks) {
 	for (bookmark of bookmarks) {
+		console.log('generatePlaceList', bookmark)
+		// Chrome does not set bookmark.type
+		var isBookmark = (typeof bookmark.type !== 'undefined'
+			? bookmark.type === 'bookmark' // Firefox
+			: typeof bookmark.dateGroupModified === 'undefined' // Chrome
+		)
+		var isFolder = (typeof bookmark.type !== 'undefined'
+			? bookmark.type === 'folder' // Firefox
+			: typeof bookmark.dateGroupModified !== 'undefined' // Chrome
+		)
+
 		var entry
-		if (bookmark.type == 'bookmark') {
+		if (isBookmark) {
 			entry = document.createElement('a')
 			entry.setAttribute('href', bookmark.url)
 			entry.setAttribute('title', bookmark.title + (bookmark.url ? '\n' + bookmark.url : ''))
-		} else if (bookmark.type == 'folder') {
+		} else if (isFolder) {
 			entry = document.createElement('div')
 			entry.setAttribute('container', 'true')
+		} else {
+			continue
 		}
 		entry.setAttribute('data-id', bookmark.id)
 		entry.classList.add('place-entry')
@@ -53,9 +74,13 @@ function generatePlaceList(placeList, bookmarks) {
 		var icon = document.createElement('span')
 		icon.classList.add('icon')
 		icon.classList.add('place-icon')
-		if (bookmark.type == 'bookmark') {
-			var iconBgColor = hslFromHostname(entry.hostname)
-			icon.style.backgroundColor = iconBgColor
+		if (isBookmark) {
+			if (isChrome) {
+				icon.style.backgroundImage = 'url(chrome://favicon/' + encodeURI(bookmark.url) + ')'
+			} else {
+				var iconBgColor = hslFromHostname(entry.hostname)
+				icon.style.backgroundColor = iconBgColor
+			}
 		}
 		entry.appendChild(icon)
 
@@ -64,7 +89,7 @@ function generatePlaceList(placeList, bookmarks) {
 		label.textContent = bookmark.title
 		entry.appendChild(label)
 
-		if (bookmark.type == 'folder') {
+		if (isFolder) {
 			var isPinned = cache.pinnedFolders.indexOf(bookmark.id) >= 0
 			var pinButton = document.createElement('button')
 			pinButton.classList.add('icon')
@@ -132,19 +157,20 @@ function generateGroup(listId, listName, bookmarks) {
 }
 
 function generateFolderGroup(folderId) {
-	browser.bookmarks.get(folderId).then(function(getBookmarks){
+	browserAPI.bookmarks.get(folderId, function(getBookmarks){
 		var folderBookmark = getBookmarks[0]
 		// console.log('folderBookmark', folderBookmark)
 		var genListFunc = generateGroup.bind(this, folderBookmark.id, folderBookmark.title)
-		browser.bookmarks.getChildren(folderBookmark.id).then(function(bookmarks){
-			return bookmarks.reverse()
-		}).then(genListFunc)
+		browserAPI.bookmarks.getChildren(folderBookmark.id, function(bookmarks){
+			bookmarks.reverse()
+			genListFunc(bookmarks)
+		})
 	})
 }
 
 function generateRecentGroup() {
 	var numBookmarks = 36 // 4 * 8
-	browser.bookmarks.getRecent(numBookmarks).then(function(bookmarks){
+	browserAPI.bookmarks.getRecent(numBookmarks, function(bookmarks){
 		generateGroup('recent', 'Recent', bookmarks)
 	})
 }
@@ -174,9 +200,9 @@ function getGroup(listId) {
 function doSearch() {
 	var query = document.querySelector('input#query').value
 	if (query) {
-		browser.bookmarks.search({
+		browserAPI.bookmarks.search({
 			query: query,
-		}).then(updateSearchGroup)
+		}, updateSearchGroup)
 	} else {
 		updateSearchGroup([])
 	}
@@ -201,7 +227,9 @@ function clearFolderGroups() {
 }
 
 function generatePinnedFolderGroups() {
-	browser.storage.local.get('pinnedFolders').then(function(items){
+	browserAPI.storage.local.get({
+		'pinnedFolders': [],
+	}, function(items){
 		// console.log('onGet', items.pinnedFolders)
 		cache.pinnedFolders = items.pinnedFolders
 		for (var folderId of items.pinnedFolders) {
@@ -227,9 +255,9 @@ function loadConfig() {
 }
 
 function setPinnedFolders(pinnedFolders) {
-	browser.storage.local.set({
+	browserAPI.storage.local.set({
 		pinnedFolders: pinnedFolders,
-	}).then(function(items){
+	}, function(items){
 		console.log('onSet', items.pinnedFolders.oldValue, items.pinnedFolders.newValue)
 		// updatePinnedFolderGroups()
 	})
@@ -252,7 +280,7 @@ function removePinnedFolder(folderId) {
 }
 function togglePinnedFolder(folderId) {
 	var wasPinned = cache.pinnedFolders.indexOf(folderId) >= 0
-	console.log('togglePinnedFolder', folderId, 'wasPinned', wasPinned)
+	// console.log('togglePinnedFolder', folderId, 'wasPinned', wasPinned)
 	if (wasPinned) {
 		removePinnedFolder(folderId)
 	} else {
@@ -263,11 +291,12 @@ function togglePinnedFolder(folderId) {
 function init() {
 	generateSearchGroup()
 	generateRecentGroup()
+	loadConfig()
 
-	browser.storage.onChanged.addListener(onStorageChange)
-	document.addEventListener("DOMContentLoaded", loadConfig)
+	browserAPI.storage.onChanged.addListener(onStorageChange)
 	document.querySelector('input#query').addEventListener('change', onQueryChange)
 	document.querySelector('input#query').addEventListener('keydown', onQueryChange)
 }
 
-init()
+document.addEventListener("DOMContentLoaded", init)
+
