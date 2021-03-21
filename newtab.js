@@ -30,13 +30,14 @@ function generateList(listName, fetchBookmarksPromise) {
 			var icon = document.createElement('span')
 			icon.classList.add('place-icon')
 			if (bookmark.type == 'bookmark') {
+				var hostname = entry.hostname.replace(/^www\./, '')
 				var aCode = 'a'.charCodeAt(0)
 				var zCode = 'z'.charCodeAt(0)
-				var hueRatio = (entry.hostname.toLowerCase().charCodeAt(0) - aCode) / (zCode - aCode)
+				var hueRatio = (hostname.toLowerCase().charCodeAt(0) - aCode) / (zCode - aCode)
 				var hue = Math.round(255 * hueRatio)
-				var satRatio = (entry.hostname.toLowerCase().charCodeAt(1) - aCode) / (zCode - aCode)
+				var satRatio = (hostname.toLowerCase().charCodeAt(1) - aCode) / (zCode - aCode)
 				var sat = 60 + Math.round(40 * satRatio)
-				var ligRatio = (entry.hostname.toLowerCase().charCodeAt(2) - aCode) / (zCode - aCode)
+				var ligRatio = (hostname.toLowerCase().charCodeAt(2) - aCode) / (zCode - aCode)
 				var lig = 10 + Math.round(30 * satRatio)
 				var iconBgColor = 'hsl(' + hue + ', ' + sat + '%, ' + lig + '%)'
 				icon.style.backgroundColor = iconBgColor
