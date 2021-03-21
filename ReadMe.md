@@ -13,3 +13,8 @@ Favicons are displayed in Chrome. In Firefox, a color is generated based on the 
 You will need to add `"chrome://favicon/""` to `"permissions": [...]` in the `manifest.json` before installing.
 
 ![](screenshots/ChromeWithFavicons.png)
+
+## Credits
+
+* Icons are from Firefox.  
+  https://github.com/mozilla/gecko-dev/tree/master/browser/themes/shared/icons
