@@ -268,14 +268,6 @@ function init() {
 	document.addEventListener("DOMContentLoaded", loadConfig)
 	document.querySelector('input#query').addEventListener('change', onQueryChange)
 	document.querySelector('input#query').addEventListener('keydown', onQueryChange)
-
-	// setPinnedFolders([
-	// 	'3z0xRLU4QWU2', // Streams
-	// 	'L9NUdhZ0tQD4', // Sleep
-	// 	'XnA7m2MTSNAR', // Shows
-	// 	'EVPdlTUf45pU', // Ani
-	// 	'GIFtN7RdTmox', // Comics
-	// ])
 }
 
 init()
