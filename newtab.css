@@ -53,6 +53,10 @@ input#query {
 	max-width: 320px;
 	padding: 0 10px 20px 10px;
 }
+#kanban:not(.searching) .kanban-group[data-id="search"],
+#kanban.searching .kanban-group:not([data-id="search"]) {
+	display: none;
+}
 
 .kanban-group h3 {
 	margin: 0.2rem 0;

@@ -12,26 +12,7 @@ function hslFromHostname(urlHostname) {
 	return 'hsl(' + hue + ', ' + sat + '%, ' + lig + '%)'
 }
 
-function generateList(listName, bookmarks) {
-	for (bookmark of bookmarks) {
-		console.log(bookmark.url, bookmark)
-	}
-
-
-	var kanban = document.querySelector('#kanban')
-
-	var group = document.createElement('div')
-	group.classList.add('kanban-group')
-	kanban.appendChild(group)
-
-	var heading = document.createElement('h3')
-	heading.textContent = listName
-	group.appendChild(heading)
-
-	var placeList = document.createElement('div')
-	placeList.classList.add('place-list')
-	group.appendChild(placeList)
-
+function generatePlaceList(placeList, bookmarks) {
 	for (bookmark of bookmarks) {
 		var entry = document.createElement('a')
 		entry.classList.add('place-entry')
@@ -59,27 +40,92 @@ function generateList(listName, bookmarks) {
 	}
 }
 
-function generateFolderList(folderTitle) {
+function generateGroup(listId, listName, bookmarks) {
+	for (bookmark of bookmarks) {
+		console.log(bookmark.url, bookmark)
+	}
+
+	var kanban = document.querySelector('#kanban')
+
+	var group = document.createElement('div')
+	group.classList.add('kanban-group')
+	group.setAttribute('data-id', listId)
+	kanban.appendChild(group)
+
+	var heading = document.createElement('h3')
+	heading.textContent = listName
+	group.appendChild(heading)
+
+	var placeList = document.createElement('div')
+	placeList.classList.add('place-list')
+	group.appendChild(placeList)
+
+	generatePlaceList(placeList, bookmarks)
+}
+
+function generateFolderGroup(folderTitle) {
 	browser.bookmarks.search({
 		title: folderTitle,
 	}).then(function(searchResults){
 		var folderBookmark = searchResults[0]
 		console.log('folderBookmark', folderBookmark)
-		var genListFunc = generateList.bind(this, folderBookmark.title)
+		var genListFunc = generateGroup.bind(this, folderBookmark.id, folderBookmark.title)
 		browser.bookmarks.getChildren(folderBookmark.id).then(function(bookmarks){
 			return bookmarks.reverse()
 		}).then(genListFunc)
 	})
 }
 
-function generateRecentList(bookmarks) {
-	generateList('Recent', bookmarks)
+function generateRecentGroup() {
+	var numBookmarks = 4 * 8
+	browser.bookmarks.getRecent(numBookmarks).then(function(bookmarks){
+		generateGroup('recent', 'Recent', bookmarks)
+	})
 }
 
-browser.bookmarks.getRecent(4*8).then(generateRecentList)
+function updateSearchGroup(bookmarks) {
+	var kanban = document.querySelector('#kanban')
+	var group = getGroup('search')
+	if (bookmarks.length >= 1) {
+		kanban.classList.add('searching')
+	} else {
+		kanban.classList.remove('searching')
+	}
+	var placeList = group.querySelector('.place-list')
+	placeList.innerHTML = '' // Clear
+	generatePlaceList(placeList, bookmarks)
+}
 
-generateFolderList('Streams')
-generateFolderList('Sleep')
-generateFolderList('Shows')
-generateFolderList('Ani')
-generateFolderList('Comics')
+function generateSearchGroup() {
+	generateGroup('search', 'Search', [])
+	updateSearchGroup([])
+}
+
+function getGroup(listId) {
+	return document.querySelector('.kanban-group[data-id="' + listId + '"]')
+}
+
+function doSearch() {
+	var query = document.querySelector('input#query').value
+	if (query) {
+		browser.bookmarks.search({
+			query: query,
+		}).then(updateSearchGroup)
+	} else {
+		updateSearchGroup([])
+	}
+}
+
+function init() {
+	generateSearchGroup()
+	generateRecentGroup()
+	generateFolderGroup('Streams')
+	generateFolderGroup('Sleep')
+	generateFolderGroup('Shows')
+	generateFolderGroup('Ani')
+	generateFolderGroup('Comics')
+
+	document.querySelector('input#query').addEventListener('change', doSearch)
+}
+
+init()
