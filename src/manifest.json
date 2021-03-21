@@ -2,7 +2,7 @@
 	"manifest_version": 2,
 	"name": "New Tab Recent Bookmarks",
 	"version": "1.0",
-	"description": "Show pinned and most recent bookmarks new tab page.",
+	"description": "Show pinned folders and recent bookmarks new tab page.",
 	"homepage_url": "https://github.com/Zren/NewTabRecentBookmarks",
 	"icons": {
 		"48": "icons/bookmark-star-on-tray.svg"
