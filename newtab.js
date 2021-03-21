@@ -36,9 +36,11 @@ function generateList(listName, fetchBookmarksPromise) {
 		for (bookmark of bookmarks) {
 			var entry = document.createElement('a')
 			entry.classList.add('place-entry')
-			entry.setAttribute('href', bookmark.url)
-			entry.setAttribute('title', bookmark.title + '\n' + bookmark.url)
-			
+			if (bookmark.url) {
+				entry.setAttribute('href', bookmark.url)
+			}
+			entry.setAttribute('title', bookmark.title + (bookmark.url ? '\n' + bookmark.url : ''))
+
 			var icon = document.createElement('span')
 			icon.classList.add('place-icon')
 			if (bookmark.type == 'bookmark') {
