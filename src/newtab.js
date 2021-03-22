@@ -239,21 +239,29 @@ function clearFolderGroups() {
 	})
 }
 
+function doneLoading() {
+	if (!pageLoaded) {
+		requestAnimationFrame(function(){
+			var kanban = document.querySelector('#kanban')
+			kanban.removeAttribute('loading')
+			pageLoaded = true
+		})
+	}
+}
+
 function generatePinnedFolderGroups() {
 	browserAPI.storage.local.get({
 		'pinnedFolders': [],
 	}, function(items){
 		// console.log('onGet', items.pinnedFolders)
 		cache.pinnedFolders = items.pinnedFolders
-		generateFolderGroupList(items.pinnedFolders, function(){
-			if (!pageLoaded) {
-				requestAnimationFrame(function(){
-					var kanban = document.querySelector('#kanban')
-					kanban.removeAttribute('loading')
-					pageLoaded = true
-				})
-			}
-		})
+		if (items.pinnedFolders.length == 0) {
+			doneLoading()
+		} else {
+			generateFolderGroupList(items.pinnedFolders, function(){
+				doneLoading()
+			})
+		}
 	})
 }
 
