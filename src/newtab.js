@@ -315,22 +315,23 @@ function fetchFavicons(callback) {
 		var keys = Object.keys(items)
 		// console.log('fetchFavicons', keys)
 
-		var css = ''
+		var style = document.createElement('style')
+		style.setAttribute('type', 'text/css')
+		style.setAttribute('id', 'favicon-style')
+		document.head.appendChild(style) // Must add to DOM before sheet property is available
+		var stylesheet = style.sheet
 		for (var key of keys) {
 			var hostname = key.substr('favIconUrl-'.length)
 			var favIconUrl = items[key]
 			if (favIconUrl) {
 				var selector = '.place-icon[data-hostname="' + hostname + '"]'
-				css += selector + ' { background-image: url(' + favIconUrl + '); background-color: none !important; }\n'
+				var rule = selector + ' { background-image: url(' + favIconUrl + '); background-color: none !important; }'
+				stylesheet.insertRule(rule, stylesheet.cssRules.length)
 				document.querySelectorAll(selector).forEach(function(placeIcon){
 					placeIcon.style.backgroundColor = ''
 				})
 			}
 		}
-		var style = document.createElement('style')
-		style.setAttribute('type', 'text/css')
-		style.innerHTML = css
-		document.head.appendChild(style)
 		callback()
 	})
 }
