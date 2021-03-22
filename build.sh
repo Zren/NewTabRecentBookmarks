@@ -26,6 +26,7 @@ echo "[Chrome]"
 
 # Modify
 python3 ./buildchrome.py
+mv ./src/faviconcacher.js ./faviconcacher.js
 
 # Zip
 zipFilename="NewTabRecentBookmarks-chrome.crx"
@@ -39,4 +40,5 @@ fi
 ### Restore
 mv ./manifest.json ./src/manifest.json
 mv ./newtab.html ./src/newtab.html
+mv ./faviconcacher.js ./src/faviconcacher.js
 mv ./livereload.js ./src/livereload.js
