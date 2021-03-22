@@ -315,14 +315,23 @@ function togglePinnedFolder(folderId) {
 	}
 }
 
+function bindSearchInput() {
+	var query = document.querySelector('input#query')
+	query.addEventListener('change', onQueryChange)
+	query.addEventListener('keydown', onQueryChange)
+
+	// Required for Chrome's clear button
+	// https://stackoverflow.com/questions/2977023/how-do-you-detect-the-clearing-of-a-search-html5-input
+	query.addEventListener('search', onQueryChange)
+}
+
 function init() {
 	generateSearchGroup()
 	generateRecentGroup()
 	loadConfig()
 
 	browserAPI.storage.onChanged.addListener(onStorageChange)
-	document.querySelector('input#query').addEventListener('change', onQueryChange)
-	document.querySelector('input#query').addEventListener('keydown', onQueryChange)
+	bindSearchInput()
 }
 
 document.addEventListener("DOMContentLoaded", init)
