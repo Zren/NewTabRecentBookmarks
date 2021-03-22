@@ -44,6 +44,15 @@ function hslFromHostname(urlHostname) {
 	return 'hsl(' + hue + ', ' + sat + '%, ' + lig + '%)'
 }
 
+function onEntryTogglePinClicked() {
+	var entry = this.parentNode
+	var folderId = entry.getAttribute('data-id')
+	this.classList.toggle('pinned')
+	if (folderId) {
+		togglePinnedFolder(folderId)
+	}
+}
+
 function generatePlaceList(placeList, bookmarks) {
 	for (bookmark of bookmarks) {
 		// console.log('generatePlaceList', bookmark)
@@ -97,14 +106,7 @@ function generatePlaceList(placeList, bookmarks) {
 			if (isPinned) {
 				pinButton.classList.add('pinned')
 			}
-			pinButton.addEventListener('click', function(){
-				var entry = this.parentNode
-				var bookmarkId = entry.getAttribute('data-id')
-				this.classList.toggle('pinned')
-				if (bookmarkId) {
-					togglePinnedFolder(bookmarkId)
-				}
-			})
+			pinButton.addEventListener('click', onEntryTogglePinClicked)
 			entry.appendChild(pinButton)
 		}
 
@@ -112,53 +114,62 @@ function generatePlaceList(placeList, bookmarks) {
 	}
 }
 
-function generateGroup(listId, listName, bookmarks) {
+function onGroupTogglePinClicked() {
+	var groupDiv = this.parentNode.parentNode
+	var folderId = groupDiv.getAttribute('data-id')
+	if (folderId) {
+		togglePinnedFolder(folderId)
+	}
+}
+
+function generateGroupHeading(group) {
+	var heading = document.createElement('div')
+	heading.classList.add('kanban-group-heading')
+
+	var headingLabel = document.createElement('h3')
+	headingLabel.classList.add('kanban-group-label')
+	headingLabel.textContent = group.title
+	heading.appendChild(headingLabel)
+
+	if (group.id != 'search' && group.id != 'recent') {
+		var pinButton = document.createElement('button')
+		pinButton.classList.add('icon')
+		pinButton.classList.add('toggle-pin')
+		pinButton.classList.add('pinned')
+		pinButton.addEventListener('click', onGroupTogglePinClicked)
+		heading.appendChild(pinButton)
+	}
+
+	return heading
+}
+
+// A group uses the same struct as a bookmark
+// group = { id: '', title: '' }
+function generateGroup(group, bookmarks) {
 	// for (bookmark of bookmarks) {
 	// 	console.log(bookmark.url, bookmark)
 	// }
 
 	var kanban = document.querySelector('#kanban')
 
-	var group = document.createElement('div')
-	group.classList.add('kanban-group')
-	group.setAttribute('data-id', listId)
-	kanban.appendChild(group)
+	var groupDiv = document.createElement('div')
+	groupDiv.classList.add('kanban-group')
+	groupDiv.setAttribute('data-id', group.id)
+	kanban.appendChild(groupDiv)
 
-	var heading = document.createElement('div')
-	heading.classList.add('kanban-group-heading')
-
-	var headingLabel = document.createElement('h3')
-	headingLabel.classList.add('kanban-group-label')
-	headingLabel.textContent = listName
-	heading.appendChild(headingLabel)
-
-	if (listId != 'search' && listId != 'recent') {
-		var pinButton = document.createElement('button')
-		pinButton.classList.add('icon')
-		pinButton.classList.add('toggle-pin')
-		pinButton.classList.add('pinned')
-		pinButton.addEventListener('click', function(){
-			var group = this.parentNode.parentNode
-			var bookmarkId = group.getAttribute('data-id')
-			if (bookmarkId) {
-				togglePinnedFolder(bookmarkId)
-			}
-		})
-		heading.appendChild(pinButton)
-	}
-
-	group.appendChild(heading)
+	var heading = generateGroupHeading(group)
+	groupDiv.appendChild(heading)
 
 	var placeList = document.createElement('div')
 	placeList.classList.add('place-list')
-	group.appendChild(placeList)
+	groupDiv.appendChild(placeList)
 
 	generatePlaceList(placeList, bookmarks)
 }
 
 function generateFolderGroup(folderBookmark, callback, bookmarks) {
 	bookmarks.reverse()
-	generateGroup(folderBookmark.id, folderBookmark.title, bookmarks)
+	generateGroup(folderBookmark, bookmarks)
 	callback()
 }
 
@@ -184,30 +195,36 @@ function generateFolderGroupList(folderIdList, callback) {
 function generateRecentGroup() {
 	var numBookmarks = 36 // 4 * 8
 	browserAPI.bookmarks.getRecent(numBookmarks, function(bookmarks){
-		generateGroup('recent', 'Recent', bookmarks)
+		generateGroup({
+			id: 'recent',
+			title: 'Recent'
+		}, bookmarks)
 	})
 }
 
 function updateSearchGroup(bookmarks) {
 	var kanban = document.querySelector('#kanban')
-	var group = getGroup('search')
+	var groupDiv = getGroup('search')
 	if (bookmarks.length >= 1) {
 		kanban.classList.add('searching')
 	} else {
 		kanban.classList.remove('searching')
 	}
-	var placeList = group.querySelector('.place-list')
+	var placeList = groupDiv.querySelector('.place-list')
 	placeList.innerHTML = '' // Clear
 	generatePlaceList(placeList, bookmarks)
 }
 
 function generateSearchGroup() {
-	generateGroup('search', 'Search', [])
+	generateGroup({
+		id: 'search',
+		title: 'Search'
+	}, [])
 	updateSearchGroup([])
 }
 
-function getGroup(listId) {
-	return document.querySelector('.kanban-group[data-id="' + listId + '"]')
+function getGroup(groupId) {
+	return document.querySelector('.kanban-group[data-id="' + groupId + '"]')
 }
 
 function doSearch() {
@@ -234,8 +251,8 @@ function onQueryChange() {
 
 function clearFolderGroups() {
 	var selector = '.kanban-group:not([data-id="search"]):not([data-id="recent"])'
-	document.querySelectorAll(selector).forEach(function(group){
-		group.remove()
+	document.querySelectorAll(selector).forEach(function(groupDiv){
+		groupDiv.remove()
 	})
 }
 
