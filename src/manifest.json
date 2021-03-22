@@ -9,9 +9,15 @@
 	},
 	"permissions": [
 		"bookmarks",
-		"storage"
+		"storage",
+		"tabs"
 	],
 	"chrome_url_overrides": {
 		"newtab": "newtab.html"
+	},
+	"background": {
+		"scripts": [
+			"faviconcacher.js"
+		]
 	}
 }

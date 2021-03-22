@@ -6,6 +6,8 @@ import json
 with open('./src/manifest.json', 'r') as fin:
 	manifest = json.load(fin)
 
+del manifest['background']
+manifest['permissions'].remove('tabs')
 manifest['permissions'].append('chrome://favicon/')
 
 with open('./src/manifest.json', 'w') as fout:

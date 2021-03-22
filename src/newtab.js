@@ -3,6 +3,7 @@
 // Chrome doesn't return promises, and requires a callback parameter.
 // Chrome also doesn't support 'bookmark.type'
 var browserAPI = chrome
+var isFirefox = typeof browser !== 'undefined'
 var isChrome = typeof browser === 'undefined'
 
 var pageLoaded = false
@@ -89,6 +90,7 @@ function generatePlaceList(placeList, bookmarks) {
 			} else {
 				var iconBgColor = hslFromHostname(entry.hostname)
 				icon.style.backgroundColor = iconBgColor
+				icon.setAttribute('data-hostname', entry.hostname)
 			}
 		}
 		entry.appendChild(icon)
@@ -299,12 +301,50 @@ function clearFolderGroups() {
 	})
 }
 
+function fetchFavicons(callback) {
+	var hostnameList = document.querySelectorAll('.place-icon[data-hostname]')
+	hostnameList = Array.prototype.map.call(hostnameList, function(placeIcon) {
+		return placeIcon.getAttribute('data-hostname')
+	})
+	var keys = {}
+	for (var hostname of hostnameList) {
+		var hostnameKey = 'favIconUrl-' + hostname
+		keys[hostnameKey] = ''
+	}
+	browserAPI.storage.local.get(keys, function(items){
+		var keys = Object.keys(items)
+		// console.log('fetchFavicons', keys)
+
+		var css = ''
+		for (var key of keys) {
+			var hostname = key.substr('favIconUrl-'.length)
+			var favIconUrl = items[key]
+			if (favIconUrl) {
+				var selector = '.place-icon[data-hostname="' + hostname + '"]'
+				css += selector + ' { background-image: url(' + favIconUrl + '); background-color: none !important; }\n'
+				document.querySelectorAll(selector).forEach(function(placeIcon){
+					placeIcon.style.backgroundColor = ''
+				})
+			}
+		}
+		var style = document.createElement('style')
+		style.setAttribute('type', 'text/css')
+		style.innerHTML = css
+		document.head.appendChild(style)
+		callback()
+	})
+}
+
 function doneLoading() {
 	if (!pageLoaded) {
 		requestAnimationFrame(function(){
 			var kanban = document.querySelector('#kanban')
 			kanban.removeAttribute('loading')
 			pageLoaded = true
+
+			fetchFavicons(function(){
+				// console.log('fetchFavicons done')
+			})
 		})
 	}
 }
