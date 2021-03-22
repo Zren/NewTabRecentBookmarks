@@ -21,10 +21,10 @@ html, body {
 	flex-direction: row;
 	align-items: center;
 }
-.kanban-group-heading .toggle-pin {
+.kanban-group-heading button {
 	margin-left: 4px;
 }
-.kanban-group-heading:not(:hover) .toggle-pin {
+.kanban-group-heading:not(:hover) button {
 	display: none;
 }
 
@@ -136,14 +136,24 @@ a.place-entry:hover .place-label {
 	text-overflow: ellipsis;
 }
 
-.toggle-pin {
+button.icon {
 	border: none;
 	background-color: transparent;
+}
+button.icon:hover {
+	background-color: #cccccc;
+}
+
+.group-move-left {
+	background-image: url(icons/back.svg);
+}
+.group-move-right {
+	background-image: url(icons/forward.svg);
+}
+
+.toggle-pin {
 	background-image: url(icons/pin-tab.svg);
 }
 .toggle-pin.pinned {
 	background-image: url(icons/pin-12.svg);
-}
-.toggle-pin:hover {
-	background-color: #cccccc;
 }

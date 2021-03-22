@@ -114,6 +114,37 @@ function generatePlaceList(placeList, bookmarks) {
 	}
 }
 
+function movePinnedFolderByDelta(bookmarkId, delta) {
+	var bookmarkIndex = cache.pinnedFolders.indexOf(bookmarkId)
+	if (bookmarkIndex == -1) {
+		throw Exception('Could not find pinnedFolder in cache', bookmarkId, cache.pinnedFolders)
+	} else {
+		var newIndex = Math.max(0, Math.min(bookmarkIndex + delta, cache.pinnedFolders.length - 1))
+		if (newIndex != bookmarkIndex) {
+			var newPinnedFolders = cache.pinnedFolders.slice()
+			newPinnedFolders.splice(bookmarkIndex, 1) // Remove at old index
+			newPinnedFolders.splice(newIndex, 0, bookmarkId) // Insert at new index
+			setPinnedFolders(newPinnedFolders)
+		}
+	}
+}
+
+function onGroupMoveLeftClicked() {
+	var groupDiv = this.parentNode.parentNode
+	var bookmarkId = groupDiv.getAttribute('data-id')
+	if (bookmarkId) {
+		movePinnedFolderByDelta(bookmarkId, -1)
+	}
+}
+
+function onGroupMoveRightClicked() {
+	var groupDiv = this.parentNode.parentNode
+	var bookmarkId = groupDiv.getAttribute('data-id')
+	if (bookmarkId) {
+		movePinnedFolderByDelta(bookmarkId, 1)
+	}
+}
+
 function onGroupTogglePinClicked() {
 	var groupDiv = this.parentNode.parentNode
 	var folderId = groupDiv.getAttribute('data-id')
@@ -132,6 +163,18 @@ function generateGroupHeading(group) {
 	heading.appendChild(headingLabel)
 
 	if (group.id != 'search' && group.id != 'recent') {
+		var moveLeftButton = document.createElement('button')
+		moveLeftButton.classList.add('icon')
+		moveLeftButton.classList.add('group-move-left')
+		moveLeftButton.addEventListener('click', onGroupMoveLeftClicked)
+		heading.appendChild(moveLeftButton)
+
+		var moveRightButton = document.createElement('button')
+		moveRightButton.classList.add('icon')
+		moveRightButton.classList.add('group-move-right')
+		moveRightButton.addEventListener('click', onGroupMoveRightClicked)
+		heading.appendChild(moveRightButton)
+
 		var pinButton = document.createElement('button')
 		pinButton.classList.add('icon')
 		pinButton.classList.add('toggle-pin')
