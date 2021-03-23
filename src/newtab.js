@@ -45,6 +45,14 @@ function hslFromHostname(urlHostname) {
 	return 'hsl(' + hue + ', ' + sat + '%, ' + lig + '%)'
 }
 
+function onEntryEditPlaceClicked() {
+	var entry = this.closest('.place-entry')
+	var bookmarkId = entry.getAttribute('data-id')
+	if (bookmarkId) {
+		showEditBookmarkForm(bookmarkId)
+	}
+}
+
 function onEntryTogglePinClicked() {
 	var entry = this.closest('.place-entry')
 	var folderId = entry.getAttribute('data-id')
@@ -104,7 +112,12 @@ function generatePlaceList(placeList, bookmarks) {
 		label.textContent = bookmark.title
 		entryLink.appendChild(label)
 
-		if (isFolder) {
+		if (isBookmark) {
+			var editPlaceButton = document.createElement('button')
+			editPlaceButton.className = 'edit-place-button icon icon-edit'
+			editPlaceButton.addEventListener('click', onEntryEditPlaceClicked)
+			entry.appendChild(editPlaceButton)
+		} else if (isFolder) {
 			var isPinned = cache.pinnedFolders.indexOf(bookmark.id) >= 0
 			var pinButton = document.createElement('button')
 			pinButton.classList.add('icon')
@@ -430,6 +443,38 @@ function bindSearchInput() {
 	query.addEventListener('search', onQueryChange)
 }
 
+function showEditBookmarkForm(bookmarkId) {
+	console.log('showBookmarkProperties', bookmarkId)
+	browserAPI.bookmarks.get([bookmarkId], function(items){
+		var bookmark = items[0]
+		var editBookmarkForm = document.querySelector('form.edit-bookmark-form')
+		editBookmarkForm.setAttribute('data-id', bookmark.id)
+
+		var bookmarkTitleInput = editBookmarkForm.querySelector('input#edit-bookmark-title')
+		bookmarkTitleInput.value = bookmark.title
+
+		var bookmarkUrlInput = editBookmarkForm.querySelector('input#edit-bookmark-url')
+		bookmarkUrlInput.value = bookmark.url
+
+		var editBookmarkWrapper = document.querySelector('.edit-bookmark-wrapper')
+		editBookmarkWrapper.classList.remove('hidden')
+	})
+}
+
+function bindEditBookmarkForm() {
+	var editBookmarkForm = document.querySelector('form.edit-bookmark-form')
+	var cancelButton = editBookmarkForm.querySelector('.actions .cancel')
+	cancelButton.addEventListener('click', function(event){
+		var editBookmarkWrapper = document.querySelector('.edit-bookmark-wrapper')
+		editBookmarkWrapper.classList.add('hidden')
+	})
+	editBookmarkForm.addEventListener('submit', function(event){
+		event.preventDefault()
+		var bookmarkId = this.getAttribute('data-id')
+		console.log('submit', bookmarkId)
+	})
+}
+
 function init() {
 	generateSearchGroup()
 	generateRecentGroup()
@@ -437,6 +482,7 @@ function init() {
 
 	browserAPI.storage.onChanged.addListener(onStorageChange)
 	bindSearchInput()
+	bindEditBookmarkForm()
 }
 
 document.addEventListener("DOMContentLoaded", init)

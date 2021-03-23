@@ -65,7 +65,7 @@ input#query {
 .kanban-group {
 	width: 320px;
 	max-width: 320px;
-	padding: 0 10px;
+	padding: 0 5px;
 }
 #kanban:not(.searching) .kanban-group[data-id="search"],
 #kanban.searching .kanban-group:not([data-id="search"]) {
@@ -163,4 +163,19 @@ button.icon:hover {
 
 .edit-bookmark-wrapper.hidden {
 	display: none;
+}
+
+.icon.icon-edit {
+	background-image: url("chrome://activity-stream/content/data/content/assets/glyph-edit-16.svg");
+}
+.place-entry .edit-place-button {
+	opacity: 0;
+	transform: scale(0.25);
+	transition-duration: 150ms;
+	transition-property: transform, opacity;
+}
+.place-entry:is(.active, :focus, :hover) .edit-place-button {
+	opacity: 1;
+	transform: scale(1);
+	transition-delay: 600ms;
 }

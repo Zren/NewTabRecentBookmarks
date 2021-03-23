@@ -17,7 +17,7 @@
 		<div class="edit-bookmark edit-topsites">
 			<div class="modalOverlayOuter active" role="presentation">
 				<div class="modal">
-					<form class="edit-bookmark-form topsite-form">
+					<form class="edit-bookmark-form topsite-form" data-id="">
 						<div class="form-input-container">
 							<h3 class="section-title grey-title">
 								Edit Bookmark
@@ -29,7 +29,7 @@
 											Title
 										</span>
 										<div class="field ">
-											<input data-l10n-id="newtab-topsites-title-input" placeholder="Enter a title" type="text" value=""/>
+											<input id="edit-bookmark-title" data-l10n-id="newtab-topsites-title-input" placeholder="Enter a title" type="text" />
 										</div>
 									</label>
 									<label>
@@ -37,7 +37,7 @@
 											URL
 										</span>
 										<div class="field url">
-											<input data-l10n-id="newtab-topsites-url-input" placeholder="Type or paste a URL" type="text" value="">
+											<input id="edit-bookmark-url" data-l10n-id="newtab-topsites-url-input" placeholder="Type or paste a URL" type="text">
 												<button class="icon icon-clear-input icon-button-style" type="button">
 												</button>
 											</input>
