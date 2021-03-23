@@ -67,19 +67,23 @@ function generatePlaceList(placeList, bookmarks) {
 			: typeof bookmark.dateGroupModified !== 'undefined' // Chrome
 		)
 
-		var entry
+		var entry = document.createElement('div')
+		entry.setAttribute('data-id', bookmark.id)
+		entry.classList.add('place-entry')
+
+		var entryLink = document.createElement('a')
+		entryLink.classList.add('place-link')
+		entry.appendChild(entryLink)
+
 		if (isBookmark) {
-			entry = document.createElement('a')
-			entry.setAttribute('href', bookmark.url)
-			entry.setAttribute('title', bookmark.title + (bookmark.url ? '\n' + bookmark.url : ''))
+			entryLink.setAttribute('href', bookmark.url)
+			entryLink.setAttribute('title', bookmark.title + (bookmark.url ? '\n' + bookmark.url : ''))
 		} else if (isFolder) {
-			entry = document.createElement('div')
 			entry.setAttribute('container', 'true')
+			entryLink.setAttribute('title', bookmark.title)
 		} else {
 			continue
 		}
-		entry.setAttribute('data-id', bookmark.id)
-		entry.classList.add('place-entry')
 
 		var icon = document.createElement('span')
 		icon.classList.add('icon')
@@ -88,17 +92,17 @@ function generatePlaceList(placeList, bookmarks) {
 			if (isChrome) {
 				icon.style.backgroundImage = 'url(chrome://favicon/' + encodeURI(bookmark.url) + ')'
 			} else {
-				var iconBgColor = hslFromHostname(entry.hostname)
+				var iconBgColor = hslFromHostname(entryLink.hostname)
 				icon.style.backgroundColor = iconBgColor
-				icon.setAttribute('data-hostname', entry.hostname)
+				icon.setAttribute('data-hostname', entryLink.hostname)
 			}
 		}
-		entry.appendChild(icon)
+		entryLink.appendChild(icon)
 
 		var label = document.createElement('span')
 		label.classList.add('place-label')
 		label.textContent = bookmark.title
-		entry.appendChild(label)
+		entryLink.appendChild(label)
 
 		if (isFolder) {
 			var isPinned = cache.pinnedFolders.indexOf(bookmark.id) >= 0

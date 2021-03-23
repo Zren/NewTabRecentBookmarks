@@ -88,21 +88,24 @@ input#query {
 }
 
 .place-entry {
-	font-size: 1rem;
+	padding: 2px;
+	flex-shrink: 1;
 	display: flex;
+}
+
+.place-link {
+	font-size: 1rem;
 	width: 100%;
 	white-space: nowrap;
 	overflow-x: hidden;
 	text-overflow: ellipsis;
-	padding: 2px;
-	flex-shrink: 1;
 }
 
-a.place-entry {
+a.place-link {
 	color: initial;
 	text-decoration: none;
 }
-a.place-entry:hover .place-label {
+a.place-link:hover .place-label {
 	color: initial;
 	text-decoration: underline;
 }
