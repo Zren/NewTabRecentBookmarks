@@ -46,7 +46,7 @@ function hslFromHostname(urlHostname) {
 }
 
 function onEntryTogglePinClicked() {
-	var entry = this.parentNode
+	var entry = this.closest('.place-entry')
 	var folderId = entry.getAttribute('data-id')
 	this.classList.toggle('pinned')
 	if (folderId) {
@@ -136,23 +136,23 @@ function movePinnedFolderByDelta(bookmarkId, delta) {
 }
 
 function onGroupMoveLeftClicked() {
-	var groupDiv = this.parentNode.parentNode
-	var bookmarkId = groupDiv.getAttribute('data-id')
-	if (bookmarkId) {
-		movePinnedFolderByDelta(bookmarkId, -1)
+	var groupDiv = this.closest('.kanban-group')
+	var folderId = groupDiv.getAttribute('data-id')
+	if (folderId) {
+		movePinnedFolderByDelta(folderId, -1)
 	}
 }
 
 function onGroupMoveRightClicked() {
-	var groupDiv = this.parentNode.parentNode
-	var bookmarkId = groupDiv.getAttribute('data-id')
-	if (bookmarkId) {
-		movePinnedFolderByDelta(bookmarkId, 1)
+	var groupDiv = this.closest('.kanban-group')
+	var folderId = groupDiv.getAttribute('data-id')
+	if (folderId) {
+		movePinnedFolderByDelta(folderId, 1)
 	}
 }
 
 function onGroupTogglePinClicked() {
-	var groupDiv = this.parentNode.parentNode
+	var groupDiv = this.closest('.kanban-group')
 	var folderId = groupDiv.getAttribute('data-id')
 	if (folderId) {
 		togglePinnedFolder(folderId)
