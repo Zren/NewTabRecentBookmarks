@@ -21,3 +21,4 @@ You will need to add `"chrome://favicon/""` to `"permissions": [...]` in the `ma
 
 * Icons are from Firefox.  
   https://github.com/mozilla/gecko-dev/tree/master/browser/themes/shared/icons
+* Used the "edit topsite" HTML+CSS from `about:newtab` for the edit bookmark GUI.
