@@ -160,3 +160,7 @@ button.icon:hover {
 .toggle-pin.pinned {
 	background-image: url(icons/pin-12.svg);
 }
+
+.edit-bookmark-wrapper.hidden {
+	display: none;
+}
