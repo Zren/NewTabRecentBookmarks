@@ -40,20 +40,17 @@ html, body {
 	max-width: 20px;
 	border-radius: 4px;
 }
-.icon-bookmark {
-	background-image: url(icons/bookmark.svg);
-	margin-right: 4px;
-	filter: invert() brightness(0.6);
+.search-wrapper {
+	padding: 10px 0;
 }
-
-input#query {
-	width: calc(80vw);
-	max-width: 800px;
+.search-wrapper input#newtab-search-text {
+	--newtab-search-icon: url(icons/bookmark.svg);
+	background-image: var(--newtab-search-icon);
 }
 
 #kanban {
 	width: 100%;
-	height: calc(100vh - 40px);
+	height: calc(100vh - 70px);
 	display: flex;
 	flex-direction: column;
 	flex-wrap: wrap;

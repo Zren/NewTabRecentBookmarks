@@ -290,7 +290,7 @@ function getGroup(groupId) {
 }
 
 function doSearch() {
-	var query = document.querySelector('input#query').value
+	var query = document.querySelector('input#newtab-search-text').value
 	if (query) {
 		browserAPI.bookmarks.search({
 			query: query,
@@ -302,7 +302,7 @@ function doSearch() {
 var debouncedDoSearch = debounce(doSearch, 600)
 
 function onQueryChange() {
-	var query = document.querySelector('input#query').value
+	var query = document.querySelector('input#newtab-search-text').value
 	if (query) {
 		debouncedDoSearch()
 	} else {
@@ -448,13 +448,16 @@ function togglePinnedFolder(folderId) {
 }
 
 function bindSearchInput() {
-	var query = document.querySelector('input#query')
+	var query = document.querySelector('input#newtab-search-text')
 	query.addEventListener('change', onQueryChange)
 	query.addEventListener('keydown', onQueryChange)
 
 	// Required for Chrome's clear button
 	// https://stackoverflow.com/questions/2977023/how-do-you-detect-the-clearing-of-a-search-html5-input
 	query.addEventListener('search', onQueryChange)
+
+	var searchButton = document.querySelector('button#searchSubmit')
+	searchSubmit.addEventListener('click', onQueryChange)
 }
 
 function showEditBookmarkForm(bookmarkId) {
