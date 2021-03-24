@@ -501,7 +501,7 @@ function onEditBookmarkSubmit(event){
 		url: bookmarkUrlInput.value,
 	}
 	var destination = null
-	updateBookmark(bookmarkId, changes, function(bookmark){
+	updateBookmark(bookmarkId, changes, destination, function(bookmark){
 		console.log('onUpdateBookmark', bookmark)
 		closeEditBookmark()
 		updateAllGroups()
