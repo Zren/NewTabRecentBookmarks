@@ -460,6 +460,65 @@ function bindSearchInput() {
 	searchSubmit.addEventListener('click', onQueryChange)
 }
 
+function getAllFolders_visitNode(folderList, bookmark) {
+	var isFolder = (typeof bookmark.type !== 'undefined'
+		? bookmark.type === 'folder' // Firefox
+		: typeof bookmark.dateGroupModified !== 'undefined' // Chrome
+	)
+	// console.log(bookmark.title, isFolder)
+	if (isFolder) {
+		if (bookmark.id != 'root________' && bookmark.id != 'mobile______') {
+			folderList.push(bookmark)
+		}
+		if (Array.isArray(bookmark.children)) {
+			for (var child of bookmark.children) {
+				getAllFolders_visitNode(folderList, child)
+			}
+		}
+	}
+}
+
+function getAllFolders(callback) {
+	browserAPI.bookmarks.getTree(function(items){
+		var root = items[0]
+		// console.log('getTree', root)
+		var folderList = []
+		// console.log('getAllFolders_visitNode')
+		getAllFolders_visitNode(folderList, root)
+		callback(folderList)
+	})
+}
+
+// https://stackoverflow.com/questions/3955229/remove-all-child-elements-of-a-dom-node-in-javascript
+function clearChildren(element) {
+	var last
+	while (last = element.lastChild) {
+		last.remove()
+	}
+}
+
+function sortFolders(folderList) {
+	var prefOrder = [
+		'toolbar_____',
+		'menu________',
+		'unfiled_____',
+		'mobile______',
+	]
+	return folderList.sort(function(a, b){
+		var aPrefIndex = prefOrder.indexOf(a.id)
+		var bPrefIndex = prefOrder.indexOf(b.id)
+		if (aPrefIndex == -1 && bPrefIndex == -1) {
+			return b.dateGroupModified - a.dateGroupModified // Descending
+		} else if (aPrefIndex >= 0 && bPrefIndex == -1) {
+			return -1 // Prefered a should stay before b
+		} else if (aPrefIndex == -1 && bPrefIndex >= 0) {
+			return 1 // Prefered b should be before a
+		} else { // aPrefIndex >= 0 && bPrefIndex >= 0
+			return aPrefIndex - bPrefIndex // Ascending
+		}
+	})
+}
+
 function showEditBookmarkForm(bookmarkId) {
 	console.log('showBookmarkProperties', bookmarkId)
 	browserAPI.bookmarks.get([bookmarkId], function(items){
@@ -473,8 +532,25 @@ function showEditBookmarkForm(bookmarkId) {
 		var bookmarkUrlInput = editBookmarkForm.querySelector('input#edit-bookmark-url')
 		bookmarkUrlInput.value = bookmark.url
 
-		var editBookmarkWrapper = document.querySelector('.edit-bookmark-wrapper')
-		editBookmarkWrapper.classList.remove('hidden')
+		getAllFolders(function(folderList){
+			// console.log('getAllFolders', folderList)
+			sortFolders(folderList)
+			// console.log('sortFolders', folderList)
+			var bookmarkFolderSelect = editBookmarkForm.querySelector('select#edit-bookmark-folder')
+			clearChildren(bookmarkFolderSelect)
+			for (var folder of folderList) {
+				var option = document.createElement('option')
+				option.setAttribute('value', folder.id)
+				option.textContent = folder.title
+				if (folder.id == bookmark.parentId) {
+					option.setAttribute('selected', 'selected')
+				}
+				bookmarkFolderSelect.appendChild(option)
+			}
+
+			var editBookmarkWrapper = document.querySelector('.edit-bookmark-wrapper')
+			editBookmarkWrapper.classList.remove('hidden')
+		})
 	})
 }
 
@@ -486,7 +562,7 @@ function updateBookmark(bookmarkId, changes, destination, callback) {
 	console.log('updateBookmark', bookmarkId, changes, destination)
 	browserAPI.bookmarks.update(bookmarkId, changes, function(bookmark){
 		if (destination) {
-			browserAPI.bookmarks.update(bookmarkId, destination, callback)
+			browserAPI.bookmarks.move(bookmarkId, destination, callback)
 		} else {
 			callback(bookmark)
 		}
@@ -499,11 +575,21 @@ function onEditBookmarkSubmit(event){
 	var editBookmarkForm = document.querySelector('form.edit-bookmark-form')
 	var bookmarkTitleInput = editBookmarkForm.querySelector('input#edit-bookmark-title')
 	var bookmarkUrlInput = editBookmarkForm.querySelector('input#edit-bookmark-url')
+	var bookmarkFolderSelect = editBookmarkForm.querySelector('select#edit-bookmark-folder')
+	var bookmarkFolderOption = bookmarkFolderSelect.selectedOptions[0]
 	var changes = {
 		title: bookmarkTitleInput.value,
 		url: bookmarkUrlInput.value,
 	}
 	var destination = null
+	if (bookmarkFolderOption.value && !bookmarkFolderOption.getAttribute('selected')) {
+		// Was not selected when populated
+		destination = {
+			parentId: bookmarkFolderOption.value,
+			// Not specifying index will place it at the bottom.
+			// Since we reverse sort pinned folders, it'll appear at the top.
+		}
+	}
 	updateBookmark(bookmarkId, changes, destination, function(bookmark){
 		console.log('onUpdateBookmark', bookmark)
 		closeEditBookmark()

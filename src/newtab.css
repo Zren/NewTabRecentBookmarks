@@ -176,3 +176,31 @@ button.icon:hover {
 	transform: scale(1);
 	transition-delay: 600ms;
 }
+
+
+/* Modal */
+
+
+/* Edit Bookmark Form */
+.topsite-form .form-wrapper select {
+	background-color: var(--newtab-textbox-background-color);
+	border: 1px solid var(--newtab-textbox-border);
+	margin: 8px 0;
+	padding: 0 8px 0 inherit;
+	height: 32px;
+	width: 100%;
+	font-size: 15px;
+}
+
+.topsite-form .form-wrapper select {
+	appearance: none;
+	background-image: url("icons/arrow-dropdown-12.svg");
+	background-position: calc(100% - 10px) center;
+	background-repeat: no-repeat;
+	padding-right: 32px;
+}
+.topsite-form .form-wrapper .folder select {
+	background-image: url("icons/folder.svg"), url("icons/arrow-dropdown-12.svg");
+	background-position: 10px center, calc(100% - 10px) center;
+	padding-left: 32px;
+}
