@@ -18,5 +18,7 @@ function watchFile(filepath) {
 	setInterval(checkFile, 500)
 }
 
+watchFile('newtab.html')
 watchFile('newtab.js')
 watchFile('newtab.css')
+watchFile('newtab-firefox.css')

@@ -1,31 +1,28 @@
-* {
-	box-sizing: border-box;
-	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Ubuntu', 'Helvetica Neue', sans-serif;
-}
+/* Images */
+.icon.icon-clear-input {
+	background-image: url(icons/glyph-cancel-16.svg); }
+.icon.icon-edit {
+	background-image: url(icons/glyph-edit-16.svg); }
+.icon.icon-folder {
+	background-image: url(icons/folder.svg); }
 
-html, body {
-	margin: 0;
-	padding: 0;
-}
-
-#topnav {
-	width: 100%;
-	height: 40px;
-	padding: 4px;
-	display: flex;
-	justify-content: center;
-}
-
-.kanban-group-heading {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-}
-.kanban-group-heading button {
-	margin-left: 4px;
-}
-.kanban-group-heading:not(:hover) button {
-	display: none;
+/* Custom Images */
+.search-wrapper .search-button {
+	background-image: url(icons/forward.svg); }
+.icon.icon-pin {
+	background-image: url(icons/pin-tab.svg); }
+.icon.icon-pin.pinned {
+	background-image: url(icons/pin-12.svg); }
+.icon.icon-bookmark-overlay {
+	background-image: url(icons/defaultFaviconOverlay.svg); }
+.place-entry[container] .place-icon {
+	background-image: url(icons/folder.svg); }
+.group-move-left {
+	background-image: url(icons/back.svg); }
+.group-move-right {
+	background-image: url(icons/forward.svg); }
+.icon.icon-pin {
+	transform: scaleX(-1);
 }
 
 .kanban-group-heading .icon,
@@ -40,6 +37,9 @@ html, body {
 	max-width: 20px;
 	border-radius: 4px;
 }
+
+
+/* Search */
 .search-wrapper {
 	padding: 10px 0;
 }
@@ -48,6 +48,8 @@ html, body {
 	background-image: var(--newtab-search-icon);
 }
 
+
+/* Kanban */
 #kanban {
 	width: 100%;
 	height: calc(100vh - 70px);
@@ -59,6 +61,8 @@ html, body {
 	row-gap: 20px;
 }
 
+
+/* Kanban Group */
 .kanban-group {
 	width: 320px;
 	max-width: 320px;
@@ -74,6 +78,12 @@ html, body {
 	opacity: 0;
 }
 
+.kanban-group-heading {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
 .kanban-group h3 {
 	margin: 0.2rem 0;
 }
@@ -84,6 +94,8 @@ html, body {
 	overflow-y: hidden;
 }
 
+
+/* Bookmark */
 .place-entry {
 	padding: 2px;
 	flex-shrink: 1;
@@ -117,12 +129,8 @@ a.place-link:hover .place-label {
 	width: 20px;
 	height: 20px;
 	margin-right: 4px;
-	background-image: url(icons/defaultFaviconOverlay.svg);
 	background-repeat: no-repeat;
 	background-position: center;
-}
-.place-entry[container] .place-icon {
-	background-image: url(icons/folder.svg);
 }
 
 .place-icon,
@@ -136,49 +144,45 @@ a.place-link:hover .place-label {
 	text-overflow: ellipsis;
 }
 
-button.icon {
+
+/* Kanban Buttons */
+.kanban-group-heading button {
+	margin-left: 4px;
+}
+.kanban-group button.icon {
 	border: none;
 	background-color: transparent;
 }
-button.icon:hover {
+.kanban-group button.icon:hover {
 	background-color: #cccccc;
 }
-
-.group-move-left {
-	background-image: url(icons/back.svg);
-}
-.group-move-right {
-	background-image: url(icons/forward.svg);
-}
-
-.toggle-pin {
-	background-image: url(icons/pin-tab.svg);
-}
-.toggle-pin.pinned {
-	background-image: url(icons/pin-12.svg);
-}
-
-.edit-bookmark-wrapper.hidden {
-	display: none;
-}
-
-.icon.icon-edit {
-	background-image: url("chrome://activity-stream/content/data/content/assets/glyph-edit-16.svg");
-}
+.kanban-group-heading button,
 .place-entry .edit-place-button {
 	opacity: 0;
 	transform: scale(0.25);
 	transition-duration: 150ms;
 	transition-property: transform, opacity;
 }
+.kanban-group-heading:hover button,
 .place-entry:is(.active, :focus, :hover) .edit-place-button {
 	opacity: 1;
 	transform: scale(1);
+}
+.place-entry:is(.active, :focus, :hover) .edit-place-button {
 	transition-delay: 600ms;
+}
+.kanban-group-heading button.icon.icon-pin {
+	transform: scaleX(-1) scale(0.25);
+}
+.kanban-group-heading:hover .icon.icon-pin {
+	transform: scaleX(-1) scale(1);
 }
 
 
-/* Modal */
+/* Edit Bookmark Modal */
+.edit-bookmark-wrapper.hidden {
+	display: none;
+}
 
 
 /* Edit Bookmark Form */

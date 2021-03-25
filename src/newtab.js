@@ -94,9 +94,9 @@ function generatePlaceList(placeList, bookmarks) {
 		}
 
 		var icon = document.createElement('span')
-		icon.classList.add('icon')
-		icon.classList.add('place-icon')
+		icon.className = 'place-icon icon'
 		if (isBookmark) {
+			icon.classList.add('icon-bookmark-overlay')
 			if (isChrome) {
 				icon.style.backgroundImage = 'url(chrome://favicon/' + encodeURI(bookmark.url) + ')'
 			} else {
@@ -120,8 +120,7 @@ function generatePlaceList(placeList, bookmarks) {
 		} else if (isFolder) {
 			var isPinned = cache.pinnedFolders.indexOf(bookmark.id) >= 0
 			var pinButton = document.createElement('button')
-			pinButton.classList.add('icon')
-			pinButton.classList.add('toggle-pin')
+			pinButton.className = 'group-toggle-pin icon icon-pin'
 			if (isPinned) {
 				pinButton.classList.add('pinned')
 			}
@@ -183,21 +182,17 @@ function generateGroupHeading(group) {
 
 	if (group.id != 'search' && group.id != 'recent') {
 		var moveLeftButton = document.createElement('button')
-		moveLeftButton.classList.add('icon')
-		moveLeftButton.classList.add('group-move-left')
+		moveLeftButton.className = 'group-move-left icon icon-previous'
 		moveLeftButton.addEventListener('click', onGroupMoveLeftClicked)
 		heading.appendChild(moveLeftButton)
 
 		var moveRightButton = document.createElement('button')
-		moveRightButton.classList.add('icon')
-		moveRightButton.classList.add('group-move-right')
+		moveRightButton.className = 'group-move-right icon icon-next'
 		moveRightButton.addEventListener('click', onGroupMoveRightClicked)
 		heading.appendChild(moveRightButton)
 
 		var pinButton = document.createElement('button')
-		pinButton.classList.add('icon')
-		pinButton.classList.add('toggle-pin')
-		pinButton.classList.add('pinned')
+		pinButton.className = 'group-toggle-pin icon icon-pin pinned'
 		pinButton.addEventListener('click', onGroupTogglePinClicked)
 		heading.appendChild(pinButton)
 	}
