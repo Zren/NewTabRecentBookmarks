@@ -12,6 +12,9 @@
 		"storage",
 		"tabs"
 	],
+	"chrome_settings_overrides": {
+		"homepage": "newtab.html"
+	},
 	"chrome_url_overrides": {
 		"newtab": "newtab.html"
 	},
