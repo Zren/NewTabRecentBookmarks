@@ -412,8 +412,7 @@ function setPinnedFolders(pinnedFolders) {
 	browserAPI.storage.local.set({
 		pinnedFolders: pinnedFolders,
 	}, function(items){
-		console.log('onSet', items.pinnedFolders.oldValue, items.pinnedFolders.newValue)
-		// updatePinnedFolderGroups()
+		// console.log('onSet', items.pinnedFolders.oldValue, items.pinnedFolders.newValue)
 	})
 }
 
