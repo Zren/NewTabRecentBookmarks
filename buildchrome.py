@@ -7,6 +7,7 @@ with open('./src/manifest.json', 'r') as fin:
 	manifest = json.load(fin)
 
 del manifest['background']
+del manifest['chrome_settings_overrides']
 manifest['permissions'].remove('tabs')
 manifest['permissions'].append('chrome://favicon/')
 
