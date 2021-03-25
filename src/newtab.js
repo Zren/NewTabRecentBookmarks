@@ -456,13 +456,17 @@ function bindSearchInput() {
 }
 
 function getAllFolders_visitNode(folderList, bookmark) {
+	var isChromeRoot = bookmark.id === '0' // Chrome root doesn't have dateGroupModified
 	var isFolder = (typeof bookmark.type !== 'undefined'
 		? bookmark.type === 'folder' // Firefox
 		: typeof bookmark.dateGroupModified !== 'undefined' // Chrome
 	)
 	// console.log(bookmark.title, isFolder)
-	if (isFolder) {
-		if (bookmark.id != 'root________' && bookmark.id != 'mobile______') {
+	if (isFolder || isChromeRoot) {
+		if (bookmark.id != 'root________'
+			&& bookmark.id != 'mobile______'
+			&& !isChromeRoot
+		) {
 			folderList.push(bookmark)
 		}
 		if (Array.isArray(bookmark.children)) {
@@ -515,7 +519,7 @@ function sortFolders(folderList) {
 }
 
 function showEditBookmarkForm(bookmarkId) {
-	console.log('showBookmarkProperties', bookmarkId)
+	// console.log('showBookmarkProperties', bookmarkId)
 	browserAPI.bookmarks.get([bookmarkId], function(items){
 		var bookmark = items[0]
 		var editBookmarkForm = document.querySelector('form.edit-bookmark-form')
