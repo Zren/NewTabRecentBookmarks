@@ -1,5 +1,5 @@
 // Firefox doesn't support favicon urls (https://bugzilla.mozilla.org/show_bug.cgi?id=1315616)
-// Firefox does support favicon urls (chrome://favicon).
+// Chrome does support favicon urls (chrome://favicon).
 // Chrome doesn't return promises, and requires a callback parameter.
 // Chrome also doesn't support 'bookmark.type'
 var browserAPI = chrome
