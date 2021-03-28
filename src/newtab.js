@@ -62,72 +62,84 @@ function onEntryTogglePinClicked() {
 	}
 }
 
+function canModifyGroup(groupId) {
+	return groupId != 'search' && groupId != 'recent'
+}
+
+function generatePlaceEntry(bookmark) {
+	// Chrome does not set bookmark.type
+	var isBookmark = (typeof bookmark.type !== 'undefined'
+		? bookmark.type === 'bookmark' // Firefox
+		: typeof bookmark.dateGroupModified === 'undefined' // Chrome
+	)
+	var isFolder = (typeof bookmark.type !== 'undefined'
+		? bookmark.type === 'folder' // Firefox
+		: typeof bookmark.dateGroupModified !== 'undefined' // Chrome
+	)
+
+	var entry = document.createElement('div')
+	entry.setAttribute('data-id', bookmark.id)
+	entry.classList.add('place-entry')
+
+	var entryLink = document.createElement('a')
+	entryLink.classList.add('place-link')
+	entry.appendChild(entryLink)
+
+	if (isBookmark) {
+		entryLink.setAttribute('href', bookmark.url)
+		entryLink.setAttribute('title', bookmark.title + (bookmark.url ? '\n' + bookmark.url : ''))
+	} else if (isFolder) {
+		entry.setAttribute('container', 'true')
+		entryLink.setAttribute('title', bookmark.title)
+	} else {
+		return null
+	}
+
+	var icon = document.createElement('span')
+	icon.className = 'place-icon icon'
+	if (isBookmark) {
+		icon.classList.add('icon-bookmark-overlay')
+		if (isChrome) {
+			icon.style.backgroundImage = 'url(chrome://favicon/' + encodeURI(bookmark.url) + ')'
+		} else {
+			var iconBgColor = hslFromHostname(entryLink.hostname)
+			icon.style.backgroundColor = iconBgColor
+			icon.setAttribute('data-hostname', entryLink.hostname)
+		}
+	}
+	entryLink.appendChild(icon)
+
+	var label = document.createElement('span')
+	label.classList.add('place-label')
+	label.textContent = bookmark.title
+	entryLink.appendChild(label)
+
+	if (isBookmark) {
+		var editPlaceButton = document.createElement('button')
+		editPlaceButton.className = 'edit-place-button icon icon-edit'
+		editPlaceButton.addEventListener('click', onEntryEditPlaceClicked)
+		entry.appendChild(editPlaceButton)
+	} else if (isFolder) {
+		var isPinned = cache.pinnedFolders.indexOf(bookmark.id) >= 0
+		var pinButton = document.createElement('button')
+		pinButton.className = 'group-toggle-pin icon icon-pin'
+		if (isPinned) {
+			pinButton.classList.add('pinned')
+		}
+		pinButton.addEventListener('click', onEntryTogglePinClicked)
+		entry.appendChild(pinButton)
+	}
+
+	return entry
+}
+
 function generatePlaceList(placeList, bookmarks) {
 	for (bookmark of bookmarks) {
 		// console.log('generatePlaceList', bookmark)
-		// Chrome does not set bookmark.type
-		var isBookmark = (typeof bookmark.type !== 'undefined'
-			? bookmark.type === 'bookmark' // Firefox
-			: typeof bookmark.dateGroupModified === 'undefined' // Chrome
-		)
-		var isFolder = (typeof bookmark.type !== 'undefined'
-			? bookmark.type === 'folder' // Firefox
-			: typeof bookmark.dateGroupModified !== 'undefined' // Chrome
-		)
-
-		var entry = document.createElement('div')
-		entry.setAttribute('data-id', bookmark.id)
-		entry.classList.add('place-entry')
-
-		var entryLink = document.createElement('a')
-		entryLink.classList.add('place-link')
-		entry.appendChild(entryLink)
-
-		if (isBookmark) {
-			entryLink.setAttribute('href', bookmark.url)
-			entryLink.setAttribute('title', bookmark.title + (bookmark.url ? '\n' + bookmark.url : ''))
-		} else if (isFolder) {
-			entry.setAttribute('container', 'true')
-			entryLink.setAttribute('title', bookmark.title)
-		} else {
+		var entry = generatePlaceEntry(bookmark)
+		if (!entry) {
 			continue
 		}
-
-		var icon = document.createElement('span')
-		icon.className = 'place-icon icon'
-		if (isBookmark) {
-			icon.classList.add('icon-bookmark-overlay')
-			if (isChrome) {
-				icon.style.backgroundImage = 'url(chrome://favicon/' + encodeURI(bookmark.url) + ')'
-			} else {
-				var iconBgColor = hslFromHostname(entryLink.hostname)
-				icon.style.backgroundColor = iconBgColor
-				icon.setAttribute('data-hostname', entryLink.hostname)
-			}
-		}
-		entryLink.appendChild(icon)
-
-		var label = document.createElement('span')
-		label.classList.add('place-label')
-		label.textContent = bookmark.title
-		entryLink.appendChild(label)
-
-		if (isBookmark) {
-			var editPlaceButton = document.createElement('button')
-			editPlaceButton.className = 'edit-place-button icon icon-edit'
-			editPlaceButton.addEventListener('click', onEntryEditPlaceClicked)
-			entry.appendChild(editPlaceButton)
-		} else if (isFolder) {
-			var isPinned = cache.pinnedFolders.indexOf(bookmark.id) >= 0
-			var pinButton = document.createElement('button')
-			pinButton.className = 'group-toggle-pin icon icon-pin'
-			if (isPinned) {
-				pinButton.classList.add('pinned')
-			}
-			pinButton.addEventListener('click', onEntryTogglePinClicked)
-			entry.appendChild(pinButton)
-		}
-
 		placeList.appendChild(entry)
 	}
 }
@@ -180,7 +192,7 @@ function generateGroupHeading(group) {
 	headingLabel.textContent = group.title
 	heading.appendChild(headingLabel)
 
-	if (group.id != 'search' && group.id != 'recent') {
+	if (canModifyGroup(group.id)) {
 		var moveLeftButton = document.createElement('button')
 		moveLeftButton.className = 'group-move-left icon icon-previous'
 		moveLeftButton.addEventListener('click', onGroupMoveLeftClicked)
