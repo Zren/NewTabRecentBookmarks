@@ -40,6 +40,14 @@ document.addEventListener('dragover', function(event){
 	var targetEntry = targetEl.closest('.place-entry')
 	if (targetEntry) {
 		// console.log(targetEntry, event)
+		var targetGroup = targetEntry.closest('.kanban-group')
+		if (!targetGroup) {
+			return
+		}
+		var targetGroupId = targetGroup.getAttribute('data-id')
+		if (!canModifyGroup(targetGroupId)) {
+			return
+		}
 		targetEntry.classList.add('draghover')
 		event.preventDefault()
 	}
