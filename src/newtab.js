@@ -606,13 +606,28 @@ function onEditBookmarkSubmit(event){
 		updateAllGroups()
 	})
 }
+function onDeleteBookmarkClicked(event){
+	var editBookmarkForm = this.closest('form.edit-bookmark-form')
+	var bookmarkId = editBookmarkForm.getAttribute('data-id')
+	// console.log('delete', bookmarkId)
+	browserAPI.bookmarks.remove(bookmarkId, function(){
+		// console.log('onDeleteBookmark', bookmark)
+
+		// Remove elements
+		var selector = '.place-entry[data-id="' + bookmarkId + '"]'
+		document.querySelectorAll(selector).forEach(function(placeEntry){
+			placeEntry.remove()
+		})
+	})
+	closeEditBookmark()
+}
 
 function bindEditBookmarkForm() {
 	var editBookmarkForm = document.querySelector('form.edit-bookmark-form')
+	var deleteButton = editBookmarkForm.querySelector('.edit-bookmark-delete')
+	deleteButton.addEventListener('click', onDeleteBookmarkClicked)
 	var cancelButton = editBookmarkForm.querySelector('.actions .cancel')
-	cancelButton.addEventListener('click', function(event){
-		closeEditBookmark()
-	})
+	cancelButton.addEventListener('click', closeEditBookmark)
 	editBookmarkForm.addEventListener('submit', onEditBookmarkSubmit)
 }
 

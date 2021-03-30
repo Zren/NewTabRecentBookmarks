@@ -1,3 +1,24 @@
+/* Button */
+.button.danger,
+button.danger {
+	--newtab-button-danger-color: #dc3545;
+	background-color: var(--newtab-button-danger-color);
+	border: 1px solid var(--newtab-button-danger-color);
+	border-radius: 4px;
+	color: #FFF;
+	cursor: pointer;
+	margin-bottom: 15px;
+	padding: 10px 30px;
+	white-space: nowrap;
+	margin-inline-start: auto;
+}
+.button.danger:hover, button.danger:hover,
+.button.danger:focus, button.danger:focus {
+	box-shadow: 0 0 0 5px var(--newtab-card-active-outline-color);
+	transition: box-shadow 150ms;
+}
+
+
 /* Images */
 .icon.icon-clear-input {
 	background-image: url(icons/glyph-cancel-16.svg); }
@@ -186,6 +207,11 @@ a.place-link:hover .place-label {
 
 
 /* Edit Bookmark Form */
+.edit-bookmark-form .edit-bookmark-delete {
+	position: absolute;
+	right: 25px;
+	top: 15px;
+}
 .topsite-form .form-wrapper select {
 	background-color: var(--newtab-textbox-background-color);
 	border: 1px solid var(--newtab-textbox-border);
