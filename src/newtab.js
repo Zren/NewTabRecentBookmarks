@@ -172,6 +172,10 @@ function insertBeforePinnedFolder(bookmarkId, targetBookmarkId) {
 		throw Exception('Could not find pinnedFolder in cache', targetBookmarkIndex, cache.pinnedFolders)
 	}
 	var newIndex = targetBookmarkIndex
+	if (bookmarkIndex < newIndex) {
+		// We remove the bookmark first, which shifts the insertion index.
+		newIndex -= 1
+	}
 	movePinnedFolder(bookmarkId, bookmarkIndex, newIndex)
 }
 
