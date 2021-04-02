@@ -105,8 +105,12 @@ button.danger {
 	align-items: center;
 }
 
-.kanban-group h3 {
+.kanban-group-label {
 	margin: 0.2rem 0;
+}
+
+.kanban-group-label[draggable] {
+	cursor: grab;
 }
 
 .place-list {

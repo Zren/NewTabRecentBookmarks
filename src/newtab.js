@@ -144,19 +144,35 @@ function generatePlaceList(placeList, bookmarks) {
 	}
 }
 
+function movePinnedFolder(bookmarkId, bookmarkIndex, _newIndex) {
+	var newIndex = Math.max(0, Math.min(_newIndex, cache.pinnedFolders.length - 1))
+	if (newIndex != bookmarkIndex) {
+		var newPinnedFolders = cache.pinnedFolders.slice()
+		newPinnedFolders.splice(bookmarkIndex, 1) // Remove at old index
+		newPinnedFolders.splice(newIndex, 0, bookmarkId) // Insert at new index
+		setPinnedFolders(newPinnedFolders)
+	}
+}
 function movePinnedFolderByDelta(bookmarkId, delta) {
 	var bookmarkIndex = cache.pinnedFolders.indexOf(bookmarkId)
 	if (bookmarkIndex == -1) {
 		throw Exception('Could not find pinnedFolder in cache', bookmarkId, cache.pinnedFolders)
-	} else {
-		var newIndex = Math.max(0, Math.min(bookmarkIndex + delta, cache.pinnedFolders.length - 1))
-		if (newIndex != bookmarkIndex) {
-			var newPinnedFolders = cache.pinnedFolders.slice()
-			newPinnedFolders.splice(bookmarkIndex, 1) // Remove at old index
-			newPinnedFolders.splice(newIndex, 0, bookmarkId) // Insert at new index
-			setPinnedFolders(newPinnedFolders)
-		}
 	}
+	var newIndex = bookmarkIndex + delta
+	movePinnedFolder(bookmarkId, bookmarkIndex, newIndex)
+}
+
+function insertBeforePinnedFolder(bookmarkId, targetBookmarkId) {
+	var bookmarkIndex = cache.pinnedFolders.indexOf(bookmarkId)
+	if (bookmarkIndex == -1) {
+		throw Exception('Could not find pinnedFolder in cache', bookmarkId, cache.pinnedFolders)
+	}
+	var targetBookmarkIndex = cache.pinnedFolders.indexOf(targetBookmarkId)
+	if (targetBookmarkIndex == -1) {
+		throw Exception('Could not find pinnedFolder in cache', targetBookmarkIndex, cache.pinnedFolders)
+	}
+	var newIndex = targetBookmarkIndex
+	movePinnedFolder(bookmarkId, bookmarkIndex, newIndex)
 }
 
 function onGroupMoveLeftClicked() {
@@ -190,6 +206,9 @@ function generateGroupHeading(group) {
 	var headingLabel = document.createElement('h3')
 	headingLabel.classList.add('kanban-group-label')
 	headingLabel.textContent = group.title
+	if (canModifyGroup(group.id)) {
+		headingLabel.setAttribute('draggable', 'true')
+	}
 	heading.appendChild(headingLabel)
 
 	if (canModifyGroup(group.id)) {

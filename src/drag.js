@@ -1,11 +1,12 @@
 // https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API
 
+var draggedGroup = null
 var draggedEntry = null
 
 var style = document.createElement('style')
 var css = ''
-css += '.place-entry.dragging { opacity: 0.5; }'
-css += '.place-entry.draghover { background: linear-gradient(var(--newtab-textbox-focus-color), transparent 1px); }'
+css += '.dragging { opacity: 0.5; }'
+css += '.draghover { background: linear-gradient(var(--newtab-textbox-focus-color), transparent 1px); }'
 style.innerHTML = css
 document.head.appendChild(style)
 
@@ -16,72 +17,121 @@ document.addEventListener('dragstart', function(event){
 		// console.log(targetEntry, event)
 		draggedEntry = targetEntry
 		targetEntry.classList.add('dragging')
+		return
+	}
+	var targetGroupHeading = targetEl.closest('.kanban-group-heading')
+	var targetGroup = targetEl.closest('.kanban-group')
+	if (targetGroupHeading && targetGroup) {
+		event.dataTransfer.setData('text/plain', '')
+		draggedGroup = targetGroup
+		targetGroup.classList.add('dragging')
+		return
 	}
 })
 document.addEventListener('dragend', function(event){
-	if (!draggedEntry) {
+	var targetEl = typeof event.target.closest === 'function' ? event.target : event.target.parentNode
+	if (draggedEntry) {
+		var targetEntry = targetEl.closest('.place-entry')
+		if (targetEntry) {
+			// console.log(targetEntry, event)
+			targetEntry.classList.remove('dragging')
+		}
+		draggedEntry = null
+		return
+	} else if (draggedGroup) {
+		var targetGroup = targetEl.closest('.kanban-group')
+		if (targetGroup) {
+			// console.log(targetGroup, event)
+			targetGroup.classList.remove('dragging')
+		}
+		draggedGroup = null
 		return
 	}
-	var targetEl = typeof event.target.closest === 'function' ? event.target : event.target.parentNode
-	var targetEntry = targetEl.closest('.place-entry')
-	if (targetEntry) {
-		// console.log(targetEntry, event)
-		targetEntry.classList.remove('dragging')
-	}
-	draggedEntry = null
 })
 
-
 document.addEventListener('dragover', function(event){
-	if (!draggedEntry) {
-		return
-	}
 	var targetEl = typeof event.target.closest === 'function' ? event.target : event.target.parentNode
-	var targetEntry = targetEl.closest('.place-entry')
-	if (targetEntry) {
-		// console.log(targetEntry, event)
-		var targetGroup = targetEntry.closest('.kanban-group')
-		if (!targetGroup) {
-			return
+	if (draggedEntry) {
+		var targetEntry = targetEl.closest('.place-entry')
+		if (targetEntry) {
+			// console.log(targetEntry, event)
+			var targetGroup = targetEntry.closest('.kanban-group')
+			if (!targetGroup) {
+				return
+			}
+			var targetGroupId = targetGroup.getAttribute('data-id')
+			if (!canModifyGroup(targetGroupId)) {
+				return
+			}
+			targetEntry.classList.add('draghover')
+			event.preventDefault()
 		}
-		var targetGroupId = targetGroup.getAttribute('data-id')
-		if (!canModifyGroup(targetGroupId)) {
-			return
+		return
+	} else if (draggedGroup) {
+		var targetGroup = targetEl.closest('.kanban-group')
+		if (targetGroup) {
+			// console.log(targetGroup, event)
+			var targetGroupId = targetGroup.getAttribute('data-id')
+			if (!canModifyGroup(targetGroupId)) {
+				return
+			}
+			targetGroup.classList.add('draghover')
+			event.preventDefault()
 		}
-		targetEntry.classList.add('draghover')
-		event.preventDefault()
+		return
 	}
 })
 document.addEventListener('dragleave', function(event){
-	if (!draggedEntry) {
+	if (!draggedEntry && !draggedGroup) {
 		return
 	}
 	var targetEl = typeof event.target.closest === 'function' ? event.target : event.target.parentNode
-	var targetEntry = targetEl.closest('.place-entry')
-	if (targetEntry) {
-		// console.log(targetEntry, event)
-		targetEntry.classList.remove('draghover')
+	var targetDragHover = targetEl.closest('.draghover')
+	if (targetDragHover) {
+		// console.log(targetDragHover, event)
+		targetDragHover.classList.remove('draghover')
 	}
 })
 document.addEventListener('drop', function(event){
 	// console.log(event)
-	// console.log(draggedEntry)
-	if (!draggedEntry) {
-		return
-	}
 	var targetEl = typeof event.target.closest === 'function' ? event.target : event.target.parentNode
-	var targetEntry = targetEl.closest('.place-entry')
-	// console.log(targetEntry)
-	if (!targetEntry) {
+	if (draggedEntry) {
+		// console.log(draggedEntry)
+		var targetEntry = targetEl.closest('.place-entry')
+		// console.log(targetEntry)
+		if (!targetEntry) {
+			return
+		}
+
+		// Prevent opening target link
+		event.preventDefault()
+
+		// Cleanup style since dragleave won't fire.
+		targetEntry.classList.remove('draghover')
+
+		dropEntry(targetEntry)
 		return
+	} else if (draggedGroup) {
+		// console.log(draggedGroup)
+		var targetGroup = targetEl.closest('.kanban-group')
+		// console.log(targetGroup)
+		if (!targetGroup) {
+			return
+		}
+
+		// Prevent opening target link
+		event.preventDefault()
+
+		// Cleanup style since dragleave won't fire.
+		targetGroup.classList.remove('draghover')
+
+		dropGroup(targetGroup)
+		return
+
 	}
+})
 
-	// Prevent opening target link
-	event.preventDefault()
-
-	// Cleanup style since dragleave won't fire.
-	targetEntry.classList.remove('draghover')
-
+function dropEntry(targetEntry) {
 	var draggedId = draggedEntry.getAttribute('data-id')
 	var targetId = targetEntry.getAttribute('data-id')
 	if (!draggedId || !targetId || draggedId === targetId) {
@@ -102,7 +152,7 @@ document.addEventListener('drop', function(event){
 	}
 
 	// We need to create a reference of draggedEntry as the dragend event
-	// will set draggedEntry=null before onMoveCallback is called.
+	// will set draggedEntry=null before the onMove callback is called.
 	var _draggedEntry = draggedEntry
 
 	browserAPI.bookmarks.get([
@@ -161,4 +211,19 @@ document.addEventListener('drop', function(event){
 			}
 		})
 	})
-})
+}
+
+function dropGroup(targetGroup) {
+	var draggedGroupId = draggedGroup.getAttribute('data-id')
+	var targetGroupId = targetGroup.getAttribute('data-id')
+	// console.log('draggedGroupId', draggedGroupId)
+	// console.log('targetGroupId', targetGroupId)
+	if (!draggedGroupId || !targetGroupId) {
+		return
+	}
+	if (draggedGroupId === targetGroupId || !canModifyGroup(targetGroupId)) {
+		return
+	}
+
+	insertBeforePinnedFolder(draggedGroupId, targetGroupId)
+}
