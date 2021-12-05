@@ -7,7 +7,7 @@ var style = document.createElement('style')
 var css = ''
 css += '.dragging { opacity: 0.5; }'
 css += '.draghover { background: linear-gradient(var(--newtab-textbox-focus-color), transparent 1px); }'
-style.innerHTML = css
+style.textContent = css
 document.head.appendChild(style)
 
 document.addEventListener('dragstart', function(event){

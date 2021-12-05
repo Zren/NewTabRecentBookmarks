@@ -294,6 +294,13 @@ function generateRecentGroup() {
 	})
 }
 
+// https://stackoverflow.com/questions/3955229/remove-all-child-elements-of-a-dom-node-in-javascript
+function clearChildrenOf(parent) {
+	while (parent.firstChild) { 
+		parent.removeChild(parent.lastChild)
+	}
+}
+
 function updateSearchGroup(bookmarks) {
 	var kanban = document.querySelector('#kanban')
 	var groupDiv = getGroup('search')
@@ -303,7 +310,7 @@ function updateSearchGroup(bookmarks) {
 		kanban.classList.remove('searching')
 	}
 	var placeList = groupDiv.querySelector('.place-list')
-	placeList.innerHTML = '' // Clear
+	clearChildrenOf(placeList)
 	generatePlaceList(placeList, bookmarks)
 }
 
