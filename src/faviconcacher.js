@@ -21,6 +21,27 @@ function cacheFavicon(hostname, favIconUrl) {
 	})
 }
 
+function deleteCachedFavicon(hostname) {
+	browserAPI.storage.local.get({
+		'favIconHostList': [],
+	}, function(items) {
+		var hostIndex = items.favIconHostList.indexOf(hostname)
+		if (hostIndex != -1) {
+			var values = {}
+
+			var newHostList = items.favIconHostList.slice()
+			newHostList.splice(hostIndex, 1) // remove
+			values['favIconHostList'] = newHostList
+
+			browserAPI.storage.local.set(values)
+
+			var hostnameKey = 'favIconUrl-' + hostname
+			console.log('deleteCachedFavicon', hostnameKey)
+			browserAPI.storage.local.remove([hostnameKey])
+		}
+	})
+}
+
 function onTabUpdated(tabId, changeInfo, tabInfo) {
 	if (changeInfo.favIconUrl) {
 		// console.log("Tab: " + tabId + " URL changed to " + changeInfo.url)
