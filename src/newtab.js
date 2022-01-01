@@ -9,6 +9,7 @@ var isChrome = typeof browser === 'undefined'
 var pageLoaded = false
 var cache = {
 	pinnedFolders: [],
+	faviconHostnameList: [],
 }
 
 // https://stackoverflow.com/questions/24004791/can-someone-explain-the-debounce-function-in-javascript
@@ -386,11 +387,9 @@ function fetchFavicons(callback) {
 			var favIconUrl = items[key]
 			if (favIconUrl) {
 				var selector = '.place-icon[data-hostname="' + hostname + '"]'
-				var rule = selector + ' { background-image: url(' + favIconUrl + '); background-color: none !important; }'
+				var rule = selector + ' { background-image: url(' + favIconUrl + '); background-color: transparent !important; }'
 				stylesheet.insertRule(rule, stylesheet.cssRules.length)
-				document.querySelectorAll(selector).forEach(function(placeIcon){
-					placeIcon.style.backgroundColor = ''
-				})
+				cache.faviconHostnameList.push(hostname)
 			}
 		}
 		callback()
