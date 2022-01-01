@@ -258,6 +258,10 @@ function generateGroup(group, bookmarks) {
 	groupDiv.appendChild(placeList)
 
 	generatePlaceList(placeList, bookmarks)
+
+	fetchFavicons(function(){
+		// console.log('fetchFavicons done')
+	})
 }
 
 function generateFolderGroup(folderBookmark, callback, bookmarks) {
@@ -370,17 +374,23 @@ function fetchFavicons(callback) {
 	})
 	var keys = {}
 	for (var hostname of hostnameList) {
-		var hostnameKey = 'favIconUrl-' + hostname
-		keys[hostnameKey] = ''
+		if (!cache.faviconHostnameList.includes(hostname)) {
+			var hostnameKey = 'favIconUrl-' + hostname
+			keys[hostnameKey] = ''
+			cache.faviconHostnameList.push(hostname)
+		}
 	}
 	browserAPI.storage.local.get(keys, function(items){
 		var keys = Object.keys(items)
 		// console.log('fetchFavicons', keys)
 
-		var style = document.createElement('style')
-		style.setAttribute('type', 'text/css')
-		style.setAttribute('id', 'favicon-style')
-		document.head.appendChild(style) // Must add to DOM before sheet property is available
+		var style = document.querySelector('style#favicon-style')
+		if (!style) {
+			style = document.createElement('style')
+			style.setAttribute('type', 'text/css')
+			style.setAttribute('id', 'favicon-style')
+			document.head.appendChild(style) // Must add to DOM before sheet property is available
+		}
 		var stylesheet = style.sheet
 		for (var key of keys) {
 			var hostname = key.substr('favIconUrl-'.length)
@@ -389,7 +399,6 @@ function fetchFavicons(callback) {
 				var selector = '.place-icon[data-hostname="' + hostname + '"]'
 				var rule = selector + ' { background-image: url(' + favIconUrl + '); background-color: transparent !important; }'
 				stylesheet.insertRule(rule, stylesheet.cssRules.length)
-				cache.faviconHostnameList.push(hostname)
 			}
 		}
 		callback()
@@ -402,10 +411,6 @@ function doneLoading() {
 			var kanban = document.querySelector('#kanban')
 			kanban.removeAttribute('loading')
 			pageLoaded = true
-
-			fetchFavicons(function(){
-				// console.log('fetchFavicons done')
-			})
 		})
 	}
 }
