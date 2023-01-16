@@ -244,18 +244,20 @@ function generateGroup(group, bookmarks) {
 	// }
 
 	var kanban = document.querySelector('#kanban')
+	var groupDiv = kanban.querySelector('.kanban-group[data-id="' + group.id + '"]')
+	if (!groupDiv) {
+		groupDiv = document.createElement('div')
+		groupDiv.classList.add('kanban-group')
+		groupDiv.setAttribute('data-id', group.id)
+		kanban.appendChild(groupDiv)
 
-	var groupDiv = document.createElement('div')
-	groupDiv.classList.add('kanban-group')
-	groupDiv.setAttribute('data-id', group.id)
-	kanban.appendChild(groupDiv)
+		var heading = generateGroupHeading(group)
+		groupDiv.appendChild(heading)
 
-	var heading = generateGroupHeading(group)
-	groupDiv.appendChild(heading)
-
-	var placeList = document.createElement('div')
-	placeList.classList.add('place-list')
-	groupDiv.appendChild(placeList)
+		var placeList = document.createElement('div')
+		placeList.classList.add('place-list')
+		groupDiv.appendChild(placeList)
+	}
 
 	generatePlaceList(placeList, bookmarks)
 
@@ -666,14 +668,36 @@ function bindEditBookmarkForm() {
 }
 
 function init() {
+	var isReset = false
+	if (pageLoaded) {
+		isReset = true
+
+		// Inverse doneLoading()
+		var kanban = document.querySelector('#kanban')
+		kanban.setAttribute('loading', '')
+		pageLoaded = false
+
+		// Remove all groups including recent/search
+		for (var i = kanban.childNodes.length - 1; i >= 0; i--) {
+			var child = kanban.childNodes[i]
+			child.remove()
+		}
+		// clearAllGroups()
+	}
+
 	generateSearchGroup()
 	generateRecentGroup()
 	loadConfig()
 
-	browserAPI.storage.onChanged.addListener(onStorageChange)
-	bindSearchInput()
-	bindEditBookmarkForm()
+	if (!isReset) {
+		browserAPI.storage.onChanged.addListener(onStorageChange)
+		bindSearchInput()
+		bindEditBookmarkForm()
+	}
 }
-
-document.addEventListener("DOMContentLoaded", init)
+if (pageLoaded) {
+	document.addEventListener("DOMContentLoaded", init)
+} else {
+	init()
+}
 
