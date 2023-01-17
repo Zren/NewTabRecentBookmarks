@@ -204,19 +204,19 @@ function onGroupTogglePinClicked() {
 	}
 }
 
-function generateGroupHeading(group) {
+function generateGroupHeading(groupId) {
 	var heading = document.createElement('div')
 	heading.classList.add('kanban-group-heading')
 
 	var headingLabel = document.createElement('h3')
 	headingLabel.classList.add('kanban-group-label')
-	headingLabel.textContent = group.title
-	if (canModifyGroup(group.id)) {
+	headingLabel.textContent = ""
+	if (canModifyGroup(groupId)) {
 		headingLabel.setAttribute('draggable', 'true')
 	}
 	heading.appendChild(headingLabel)
 
-	if (canModifyGroup(group.id)) {
+	if (canModifyGroup(groupId)) {
 		var moveLeftButton = document.createElement('button')
 		moveLeftButton.className = 'group-move-left icon icon-previous'
 		moveLeftButton.addEventListener('click', onGroupMoveLeftClicked)
@@ -236,34 +236,49 @@ function generateGroupHeading(group) {
 	return heading
 }
 
-// A group uses the same struct as a bookmark
-// group = { id: '', title: '' }
-function generateGroup(group, bookmarks) {
-	// for (bookmark of bookmarks) {
-	// 	console.log(bookmark.url, bookmark)
-	// }
-
-	var kanban = document.querySelector('#kanban')
-	var groupDiv = kanban.querySelector('.kanban-group[data-id="' + group.id + '"]')
+function generateGroupDiv(groupId) {
+	var groupDiv = getGroup(groupId)
 	if (!groupDiv) {
 		groupDiv = document.createElement('div')
 		groupDiv.classList.add('kanban-group')
-		groupDiv.setAttribute('data-id', group.id)
+		groupDiv.setAttribute('data-id', groupId)
+		var kanban = document.querySelector('#kanban')
 		kanban.appendChild(groupDiv)
 
-		var heading = generateGroupHeading(group)
+		var heading = generateGroupHeading(groupId)
 		groupDiv.appendChild(heading)
 
 		var placeList = document.createElement('div')
 		placeList.classList.add('place-list')
 		groupDiv.appendChild(placeList)
 	}
+}
 
+function updateGroupDiv(groupId, group) {
+	var groupDiv = getGroup(groupId)
+	var headingLabel = groupDiv.querySelector('.kanban-group-label')
+	headingLabel.textContent = group.title
+}
+
+function updateGroupBookmarks(groupId, bookmarks) {
+	var groupDiv = getGroup(groupId)
+	var placeList = groupDiv.querySelector('.place-list')
+	clearChildrenOf(placeList)
 	generatePlaceList(placeList, bookmarks)
-
 	fetchFavicons(function(){
 		// console.log('fetchFavicons done')
 	})
+}
+
+// A group uses the same struct as a bookmark
+// group = { id: '', title: '' }
+function generateGroup(group, bookmarks) {
+	// for (bookmark of bookmarks) {
+	// 	console.log(bookmark.url, bookmark)
+	// }
+	generateGroupDiv(group.id)
+	updateGroupDiv(group.id, group)
+	updateGroupBookmarks(group.id, bookmarks)
 }
 
 function generateFolderGroup(folderBookmark, callback, bookmarks) {
@@ -273,6 +288,11 @@ function generateFolderGroup(folderBookmark, callback, bookmarks) {
 }
 
 function generateFolderGroupList(folderIdList, callback) {
+	// Init Elements with config order
+	for (var folderId of folderIdList) {
+		generateGroupDiv(folderId)
+	}
+
 	browserAPI.bookmarks.get(folderIdList, function(folderBookmarkList){
 		var groupsDone = 0
 		function onGroupDone() {
