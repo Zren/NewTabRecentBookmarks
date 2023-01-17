@@ -348,6 +348,7 @@ function generateFolderGroupList(folderIdList, callback) {
 }
 
 function generateRecentGroup() {
+	generateGroupDiv('recent')
 	var numBookmarks = 36 // 4 * 8
 	browserAPI.bookmarks.getRecent(numBookmarks, function(bookmarks){
 		generateGroup({
