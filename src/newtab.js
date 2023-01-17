@@ -67,16 +67,37 @@ function canModifyGroup(groupId) {
 	return groupId != 'search' && groupId != 'recent'
 }
 
-function generatePlaceEntry(bookmark) {
-	// Chrome does not set bookmark.type
-	var isBookmark = (typeof bookmark.type !== 'undefined'
+// Chrome does not set bookmark.type
+function detectBookmark(bookmark) {
+	return (typeof bookmark.type !== 'undefined'
 		? bookmark.type === 'bookmark' // Firefox
 		: typeof bookmark.dateGroupModified === 'undefined' // Chrome
 	)
-	var isFolder = (typeof bookmark.type !== 'undefined'
+}
+function detectFolder(bookmark) {
+	return (typeof bookmark.type !== 'undefined'
 		? bookmark.type === 'folder' // Firefox
 		: typeof bookmark.dateGroupModified !== 'undefined' // Chrome
 	)
+}
+
+function updatePlaceIcon(icon, bookmark, entryLink) {
+	icon.className = 'place-icon icon'
+	if (detectBookmark(bookmark)) {
+		icon.classList.add('icon-bookmark-overlay')
+		if (isChrome) {
+			icon.style.backgroundImage = 'url(chrome://favicon/' + encodeURI(bookmark.url) + ')'
+		} else {
+			var iconBgColor = hslFromHostname(entryLink.hostname)
+			icon.style.backgroundColor = iconBgColor
+			icon.setAttribute('data-hostname', entryLink.hostname)
+		}
+	}
+}
+
+function generatePlaceEntry(bookmark) {
+	var isBookmark = detectBookmark(bookmark)
+	var isFolder = detectFolder(bookmark)
 
 	var entry = document.createElement('div')
 	entry.setAttribute('data-id', bookmark.id)
@@ -97,17 +118,7 @@ function generatePlaceEntry(bookmark) {
 	}
 
 	var icon = document.createElement('span')
-	icon.className = 'place-icon icon'
-	if (isBookmark) {
-		icon.classList.add('icon-bookmark-overlay')
-		if (isChrome) {
-			icon.style.backgroundImage = 'url(chrome://favicon/' + encodeURI(bookmark.url) + ')'
-		} else {
-			var iconBgColor = hslFromHostname(entryLink.hostname)
-			icon.style.backgroundColor = iconBgColor
-			icon.setAttribute('data-hostname', entryLink.hostname)
-		}
-	}
+	updatePlaceIcon(icon, bookmark, entryLink)
 	entryLink.appendChild(icon)
 
 	var label = document.createElement('span')
@@ -132,6 +143,31 @@ function generatePlaceEntry(bookmark) {
 	}
 
 	return entry
+}
+
+function updatePlaceEntry(entry, bookmark) {
+	console.log('updatePlaceEntry', entry, bookmark)
+	var isBookmark = detectBookmark(bookmark)
+	var isFolder = detectFolder(bookmark)
+	console.log('  isBookmark', isBookmark, 'isFolder', isFolder)
+
+	var entryLink = entry.querySelector('.place-link')
+
+	if (isBookmark) {
+		entryLink.setAttribute('href', bookmark.url)
+		entryLink.setAttribute('title', bookmark.title + (bookmark.url ? '\n' + bookmark.url : ''))
+	} else if (isFolder) {
+		entry.setAttribute('container', 'true')
+		entryLink.setAttribute('title', bookmark.title)
+	} else {
+		return
+	}
+
+	var icon = entry.querySelector('.place-icon')
+	updatePlaceIcon(icon, bookmark, entryLink)
+
+	var label = entry.querySelector('.place-label')
+	label.textContent = bookmark.title
 }
 
 function generatePlaceList(placeList, bookmarks) {
@@ -634,6 +670,12 @@ function updateBookmark(bookmarkId, changes, destination, callback) {
 		}
 	})
 }
+function onBookmarkUpdate(bookmarkId, bookmark) {
+	var selector = '.place-entry[data-id="' + bookmarkId + '"]'
+	document.querySelectorAll(selector).forEach(function(placeEntry){
+		updatePlaceEntry(placeEntry, bookmark)
+	})
+}
 function onEditBookmarkSubmit(event){
 	event.preventDefault()
 	var bookmarkId = this.getAttribute('data-id')
@@ -657,9 +699,13 @@ function onEditBookmarkSubmit(event){
 		}
 	}
 	updateBookmark(bookmarkId, changes, destination, function(bookmark){
-		console.log('onUpdateBookmark', bookmark)
+		console.log('updateBookmark_done', bookmark, changes, destination)
 		closeEditBookmark()
-		updateAllGroups()
+		if (destination) {
+			updateAllGroups()
+		} else {
+			onBookmarkUpdate(bookmarkId, bookmark)
+		}
 	})
 }
 function onDeleteBookmarkClicked(event){
