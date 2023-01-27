@@ -5,7 +5,8 @@
 	"description": "Show pinned folders and recent bookmarks new tab page.",
 	"homepage_url": "https://github.com/Zren/NewTabRecentBookmarks",
 	"icons": {
-		"48": "icons/bookmark-star-on-tray.svg"
+		"48": "icons/ntrb-logo-48.png",
+		"96": "icons/ntrb-logo-96.png"
 	},
 	"permissions": [
 		"bookmarks",
