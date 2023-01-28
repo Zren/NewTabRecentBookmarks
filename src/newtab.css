@@ -136,11 +136,11 @@ button.danger {
 }
 
 a.place-link {
-	color: initial;
+	color: inherit;
 	text-decoration: none;
 }
 a.place-link:hover .place-label {
-	color: initial;
+	color: inherit;
 	text-decoration: underline;
 }
 
@@ -150,6 +150,7 @@ a.place-link:hover .place-label {
 
 
 .place-icon {
+	color: inherit;
 	display: inline-block;
 	width: 20px;
 	height: 20px;
@@ -237,4 +238,5 @@ a.place-link:hover .place-label {
 	background-image: url("icons/folder.svg"), url("icons/arrow-dropdown-12.svg");
 	background-position: 10px center, calc(100% - 10px) center;
 	padding-left: 32px;
+	color: inherit;
 }
