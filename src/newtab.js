@@ -390,6 +390,11 @@ function getGroup(groupId) {
 	return document.querySelector('.kanban-group[data-id="' + groupId + '"]')
 }
 
+function clearSearch() {
+	var searchInput = document.querySelector('input#newtab-search-text')
+	searchInput.value = ''
+}
+
 function doSearch() {
 	var query = document.querySelector('input#newtab-search-text').value
 	if (query) {
@@ -543,6 +548,7 @@ function togglePinnedFolder(folderId) {
 		removePinnedFolder(folderId)
 	} else {
 		addPinnedFolder(folderId)
+		clearSearch()
 	}
 }
 
