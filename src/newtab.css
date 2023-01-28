@@ -39,9 +39,9 @@ button.danger {
 	background-image: url(icons/defaultFaviconOverlay.svg); }
 .place-entry[container] .place-icon {
 	background-image: url(icons/folder.svg); }
-.group-move-left {
+.icon.icon-previous {
 	background-image: url(icons/back.svg); }
-.group-move-right {
+.icon.icon-next {
 	background-image: url(icons/forward.svg); }
 
 .kanban-group-heading .icon,
