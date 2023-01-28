@@ -31,9 +31,10 @@ button.danger {
 .search-wrapper .search-button {
 	background-image: url(icons/forward.svg); }
 .icon.icon-pin {
-	background-image: url(icons/pin-tab.svg); }
+	background-image: url(icons/pinned.svg); }
+.icon.icon-pinned,
 .icon.icon-pin.pinned {
-	background-image: url(icons/pin-12.svg); }
+	background-image: url(icons/pin.svg); }
 .icon.icon-bookmark-overlay {
 	background-image: url(icons/defaultFaviconOverlay.svg); }
 .place-entry[container] .place-icon {
@@ -42,9 +43,6 @@ button.danger {
 	background-image: url(icons/back.svg); }
 .group-move-right {
 	background-image: url(icons/forward.svg); }
-.icon.icon-pin {
-	transform: scaleX(-1);
-}
 
 .kanban-group-heading .icon,
 .place-entry .icon {
@@ -197,11 +195,13 @@ a.place-link:hover .place-label {
 .place-entry:is(.active, :focus, :hover) .edit-place-button {
 	transition-delay: 600ms;
 }
-.kanban-group-heading button.icon.icon-pin {
-	transform: scaleX(-1) scale(0.25);
+.kanban-group-heading button.icon.icon-pin,
+.kanban-group-heading button.icon.icon-pinned {
+	transform: scale(0.25);
 }
-.kanban-group-heading:hover .icon.icon-pin {
-	transform: scaleX(-1) scale(1);
+.kanban-group-heading:hover .icon.icon-pin,
+.kanban-group-heading:hover .icon.icon-pinned {
+	transform: scale(1);
 }
 
 
