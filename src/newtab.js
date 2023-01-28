@@ -499,6 +499,22 @@ function clearFolderGroups() {
 	})
 }
 
+function fixDarkFavIcon(hostname, favIconUrl) {
+	if (hostname == 'github.com') {
+		var dataPrefix = 'data:image/svg+xml;base64,'
+		if (favIconUrl.startsWith(dataPrefix)) {
+			var dataStr = favIconUrl.substr(dataPrefix.length)
+			var svgStr1 = atob(dataStr)
+			var svgStr2 = svgStr1.replace(' fill="#24292E"', ' fill="#FFFFFF"')
+			if (svgStr1 != svgStr2) {
+				var newFavIconUrl = dataPrefix + btoa(svgStr2)
+				return newFavIconUrl
+			}
+		}
+	}
+	return favIconUrl
+}
+
 function fetchFavicons(callback) {
 	var hostnameList = document.querySelectorAll('.place-icon[data-hostname]')
 	hostnameList = Array.prototype.map.call(hostnameList, function(placeIcon) {
@@ -528,6 +544,9 @@ function fetchFavicons(callback) {
 			var hostname = key.substr('favIconUrl-'.length)
 			var favIconUrl = items[key]
 			if (favIconUrl) {
+				if (prefersDarkQuery.matches) {
+					favIconUrl = fixDarkFavIcon(hostname, favIconUrl)
+				}
 				var selector = '.place-icon[data-hostname="' + hostname + '"]'
 				var rule = selector + ' { background-image: url(' + favIconUrl + '); background-color: transparent !important; }'
 				stylesheet.insertRule(rule, stylesheet.cssRules.length)
