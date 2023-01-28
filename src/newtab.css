@@ -185,7 +185,7 @@ a.place-link:hover .place-label {
 	background-color: transparent;
 }
 .kanban-group button.icon:hover {
-	background-color: #cccccc;
+	background-color: var(--newtab-button-hover-background);
 }
 .kanban-group-heading button,
 .place-entry .edit-place-button {
@@ -254,7 +254,12 @@ a.place-link:hover .place-label {
 	color: inherit;
 }
 
+
 /* DarkMode */
 body {
 	color: var(--newtab-text-primary-color);
+	--newtab-button-hover-background: #cccccc;
+}
+body[lwt-newtab-brighttext] {
+	--newtab-button-hover-background: #444444;
 }
