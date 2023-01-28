@@ -6,6 +6,7 @@ var browserAPI = chrome
 var isFirefox = typeof browser !== 'undefined'
 var isChrome = typeof browser === 'undefined'
 
+var useSvgIcons = true
 var pageLoaded = false
 var cache = {
 	pinnedFolders: [],
@@ -33,6 +34,57 @@ function debounce(func, wait, immediate) {
 	}
 }
 
+// Firefox about:newtab uses fill="context-fill" in the SVGs, however that is
+// only supported on internal chrome:// URLs without an about:config toggle.
+// * https://docs.w3cub.com/css/-moz-context-properties.html
+// So we need to embed the svg in the DOM to style it with CSS.
+// An alternative is to mask the bg-color and bg-image but that means the button
+// can't have a bg-color on hover which is more annoying.
+// * https://stackoverflow.com/questions/51395179/svg-fill-with-css-variables
+var iconPaths = {
+	// back.svg
+	'icon-previous': { path: 'M15,7H3.414L7.707,2.707A1,1,0,0,0,6.293,1.293l-6,6a1,1,0,0,0,0,1.414l6,6a1,1,0,0,0,1.414-1.414L3.414,9H15a1,1,0,0,0,0-2Z' },
+	// glyph-cancel-16.svg
+	'icon-cancel': { path: 'M6.586 8l-2.293 2.293a1 1 0 0 0 1.414 1.414L8 9.414l2.293 2.293a1 1 0 0 0 1.414-1.414L9.414 8l2.293-2.293a1 1 0 1 0-1.414-1.414L8 6.586 5.707 4.293a1 1 0 0 0-1.414 1.414L6.586 8zM8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0z' },
+	// glyph-edit-16.svg
+	'icon-edit': { path: 'M14.354 2.353l-.708-.707a2.007 2.007 0 0 0-2.828 0l-.379.379a.5.5 0 0 0 0 .707l2.829 2.829a.5.5 0 0 0 .707 0l.379-.379a2.008 2.008 0 0 0 0-2.829zM9.732 3.439a.5.5 0 0 0-.707 0L3.246 9.218a1.986 1.986 0 0 0-.452.712l-1.756 4.39A.5.5 0 0 0 1.5 15a.5.5 0 0 0 .188-.037l4.382-1.752a1.966 1.966 0 0 0 .716-.454l5.779-5.778a.5.5 0 0 0 0-.707zM5.161 12.5l-2.549 1.02a.1.1 0 0 1-.13-.13L3.5 10.831a.1.1 0 0 1 .16-.031l1.54 1.535a.1.1 0 0 1-.039.165z' },
+	// forward.svg
+	'icon-next': { path: 'M15.707,7.293l-6-6A1,1,0,0,0,8.293,2.707L12.586,7H1A1,1,0,0,0,1,9H12.586L8.293,13.293a1,1,0,1,0,1.414,1.414l6-6A1,1,0,0,0,15.707,7.293Z' },
+	// pin-tab.svg
+	'icon-pin': { path: 'm1.2809 13.293 3.293-3.293-2.293-2.293a1 1 0 0 1 0-1.414 4.384 4.384 0 0 1 3.121-1.293h0.172a2.415 2.415 0 0 0 2.414-2.414v-0.586a1 1 0 0 1 1.707-0.707l5 5a1 1 0 0 1-0.707 1.707h-0.586a2.415 2.415 0 0 0-2.414 2.414v0.169a4.036 4.036 0 0 1-1.337 3.166 1 1 0 0 1-1.37-0.042l-2.293-2.293-3.293 3.293a1 1 0 0 1-1.414-1.414zm7.578-1.837a2.684 2.684 0 0 0 0.129-0.873v-0.169a4.386 4.386 0 0 1 1.292-3.121 4.414 4.414 0 0 1 1.572-1.015l-2.143-2.142a4.4 4.4 0 0 1-1.013 1.571 4.384 4.384 0 0 1-3.122 1.293h-0.172a2.4 2.4 0 0 0-0.848 0.152z' },
+	// pin-12.svg
+	'icon-pinned': { path: 'm8.948 0c0.66528 0 1.1975 0.26611 1.5967 0.66528l4.79 4.79c0.39917 0.39917 0.66528 0.93139 0.66528 1.5967 0 0.66528-0.26611 1.1975-0.66528 1.5967-0.39917 0.39917-1.0644 0.66528-1.5967 0.66528h-0.53222c-0.53222 0-0.93139 0.39917-0.93139 0.93139v0.13306c0 1.4636-0.53222 2.9272-1.7297 3.9917-0.39917 0.39917-0.93139 0.53222-1.4636 0.53222-0.66528 0-1.1975-0.26611-1.5967-0.66528l-1.1975-1.1975-2.262 2.262c-0.39917 0.39917-1.0644 0.66528-1.5967 0.66528-0.66528 0-1.1975-0.26611-1.7297-0.66528-0.93139-0.93139-0.93139-2.395 0-3.3264l2.1289-2.1289-1.1975-1.1975c-0.93139-0.93139-0.93139-2.395 0-3.1933 1.0644-1.0644 2.5281-1.7297 3.9917-1.7297h0.13306c0.53222 0 0.93139-0.39917 0.93139-0.93139v-0.53222c0-0.66528 0.26611-1.1975 0.66528-1.5967 0.39917-0.39917 1.0644-0.66528 1.5967-0.66528z' },
+}
+iconPaths['icon-clear-input'] = iconPaths['icon-cancel']
+function genSvgIcon(iconName) {
+	var pathD = iconPaths[iconName].path
+	var svgNS = "http://www.w3.org/2000/svg";
+	var svg = document.createElementNS(svgNS, 'svg')
+	svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
+	svg.setAttribute('viewBox', '0 0 16 16')
+	var path = document.createElementNS(svgNS, 'path')
+	svg.appendChild(path)
+	path.setAttribute('d', pathD)
+	return svg
+}
+function setIcon(parent, iconName) {
+	parent.classList.add('icon')
+	if (useSvgIcons) {
+		if (parent.classList.contains('svgicon')) {
+			let svg = parent.querySelector('svg')
+			if (svg) {
+				svg.remove()
+			}
+		} else {
+			parent.classList.add('svgicon')
+		}
+		let svg = genSvgIcon(iconName)
+		parent.appendChild(svg)
+	} else {
+		parent.classList.add(iconName)
+	}
+}
+
 function hslFromHostname(urlHostname) {
 	var hostname = urlHostname.replace(/^www\./, '')
 	var aCode = 'a'.charCodeAt(0)
@@ -54,11 +106,20 @@ function onEntryEditPlaceClicked() {
 	}
 }
 
+function updatePinIcon(button) {
+	if (button.classList.contains('pinned')) {
+		setIcon(button, 'icon-pinned')
+	} else {
+		setIcon(button, 'icon-pin')
+	}
+}
+
 function onEntryTogglePinClicked() {
 	var entry = this.closest('.place-entry')
 	var folderId = entry.getAttribute('data-id')
-	this.classList.toggle('pinned')
 	if (folderId) {
+		this.classList.toggle('pinned')
+		updatePinIcon(this)
 		togglePinnedFolder(folderId)
 	}
 }
@@ -128,16 +189,18 @@ function generatePlaceEntry(bookmark) {
 
 	if (isBookmark) {
 		var editPlaceButton = document.createElement('button')
-		editPlaceButton.className = 'edit-place-button icon icon-edit'
+		editPlaceButton.className = 'edit-place-button'
+		setIcon(editPlaceButton, 'icon-edit')
 		editPlaceButton.addEventListener('click', onEntryEditPlaceClicked)
 		entry.appendChild(editPlaceButton)
 	} else if (isFolder) {
 		var isPinned = cache.pinnedFolders.indexOf(bookmark.id) >= 0
 		var pinButton = document.createElement('button')
-		pinButton.className = 'group-toggle-pin icon icon-pin'
+		pinButton.className = 'group-toggle-pin'
 		if (isPinned) {
 			pinButton.classList.add('pinned')
 		}
+		updatePinIcon(pinButton)
 		pinButton.addEventListener('click', onEntryTogglePinClicked)
 		entry.appendChild(pinButton)
 	}
@@ -236,6 +299,8 @@ function onGroupTogglePinClicked() {
 	var groupDiv = this.closest('.kanban-group')
 	var folderId = groupDiv.getAttribute('data-id')
 	if (folderId) {
+		this.classList.toggle('pinned')
+		updatePinIcon(this)
 		togglePinnedFolder(folderId)
 	}
 }
@@ -254,17 +319,20 @@ function generateGroupHeading(groupId) {
 
 	if (canModifyGroup(groupId)) {
 		var moveLeftButton = document.createElement('button')
-		moveLeftButton.className = 'group-move-left icon icon-previous'
+		moveLeftButton.className = 'group-move-left'
+		setIcon(moveLeftButton, 'icon-previous')
 		moveLeftButton.addEventListener('click', onGroupMoveLeftClicked)
 		heading.appendChild(moveLeftButton)
 
 		var moveRightButton = document.createElement('button')
-		moveRightButton.className = 'group-move-right icon icon-next'
+		moveRightButton.className = 'group-move-right'
+		setIcon(moveRightButton, 'icon-next')
 		moveRightButton.addEventListener('click', onGroupMoveRightClicked)
 		heading.appendChild(moveRightButton)
 
 		var pinButton = document.createElement('button')
-		pinButton.className = 'group-toggle-pin icon icon-pin pinned'
+		pinButton.className = 'group-toggle-pin'
+		setIcon(pinButton, 'icon-pinned')
 		pinButton.addEventListener('click', onGroupTogglePinClicked)
 		heading.appendChild(pinButton)
 	}
@@ -734,10 +802,11 @@ function onDeleteBookmarkClicked(event){
 function bindEditBookmarkForm() {
 	var editBookmarkForm = document.querySelector('form.edit-bookmark-form')
 	var bookmarkUrlInput = document.querySelector('#edit-bookmark-url')
-	var clearButton = bookmarkUrlInput.parentNode.querySelector('button.clear-input-button')
-	clearButton.addEventListener('click', function(){
+	var bookmarkUrlClearButton = bookmarkUrlInput.parentNode.querySelector('button.clear-input-button')
+	bookmarkUrlClearButton.addEventListener('click', function(){
 		bookmarkUrlInput.value = ''
 	})
+	setIcon(bookmarkUrlClearButton, 'icon-clear-input')
 	var deleteButton = editBookmarkForm.querySelector('.edit-bookmark-delete')
 	deleteButton.addEventListener('click', onDeleteBookmarkClicked)
 	var cancelButton = editBookmarkForm.querySelector('.actions .cancel')

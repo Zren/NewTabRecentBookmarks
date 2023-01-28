@@ -20,6 +20,13 @@ button.danger {
 
 
 /* Images */
+.icon.svgicon {
+	padding: 0px;
+	padding: 2px;
+}
+.icon.svgicon svg {
+	fill: currentColor;
+}
 .icon.icon-clear-input {
 	background-image: url(icons/glyph-cancel-16.svg); }
 .icon.icon-edit {
@@ -212,6 +219,12 @@ a.place-link:hover .place-label {
 
 
 /* Edit Bookmark Form */
+.topsite-form .form-wrapper .field .clear-input-button {
+	position: absolute;
+	transform: translateY(-50%);
+	top: 50%;
+	inset-inline-end: 8px;
+}
 .edit-bookmark-form .edit-bookmark-delete {
 	position: absolute;
 	right: 25px;
@@ -239,4 +252,9 @@ a.place-link:hover .place-label {
 	background-position: 10px center, calc(100% - 10px) center;
 	padding-left: 32px;
 	color: inherit;
+}
+
+/* DarkMode */
+body {
+	color: var(--newtab-text-primary-color);
 }
