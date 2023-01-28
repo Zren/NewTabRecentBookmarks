@@ -734,6 +734,21 @@ function bindEditBookmarkForm() {
 	editBookmarkForm.addEventListener('submit', onEditBookmarkSubmit)
 }
 
+// We can't use @media (prefers-color-scheme: dark) CSS for some reason,
+// so we use this JS media query and toggle body[lwt-newtab-brighttext] attribute.
+// https://github.com/mozilla/gecko-dev/blob/master/browser/base/content/contentTheme.js
+const prefersDarkQuery = window.matchMedia("(prefers-color-scheme: dark)")
+function updateTheme() {
+	browser.theme.getCurrent().then(function(theme){
+		var isDarkMode = prefersDarkQuery.matches
+		document.body.setAttribute("lwt-newtab", "true")
+		document.body.toggleAttribute("lwt-newtab-brighttext", isDarkMode)
+	})
+}
+function bindTheme() {
+	prefersDarkQuery.addEventListener("change", updateTheme)
+}
+
 function init() {
 	var isReset = false
 	if (pageLoaded) {
@@ -752,6 +767,7 @@ function init() {
 		// clearAllGroups()
 	}
 
+	updateTheme()
 	generateSearchGroup()
 	generateRecentGroup()
 	loadConfig()
@@ -760,6 +776,7 @@ function init() {
 		browserAPI.storage.onChanged.addListener(onStorageChange)
 		bindSearchInput()
 		bindEditBookmarkForm()
+		bindTheme()
 	}
 }
 if (pageLoaded) {
