@@ -733,6 +733,11 @@ function onDeleteBookmarkClicked(event){
 
 function bindEditBookmarkForm() {
 	var editBookmarkForm = document.querySelector('form.edit-bookmark-form')
+	var bookmarkUrlInput = document.querySelector('#edit-bookmark-url')
+	var clearButton = bookmarkUrlInput.parentNode.querySelector('button.clear-input-button')
+	clearButton.addEventListener('click', function(){
+		bookmarkUrlInput.value = ''
+	})
 	var deleteButton = editBookmarkForm.querySelector('.edit-bookmark-delete')
 	deleteButton.addEventListener('click', onDeleteBookmarkClicked)
 	var cancelButton = editBookmarkForm.querySelector('.actions .cancel')
