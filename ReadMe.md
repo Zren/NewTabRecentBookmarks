@@ -29,3 +29,4 @@ To test in Chrome, you will need to modify the `manifest.json` before loading it
 * Icons are from Firefox.  
   https://github.com/mozilla/gecko-dev/tree/master/browser/themes/shared/icons
 * Used the "edit topsite" HTML+CSS from `about:newtab` for the edit bookmark GUI.
+    * https://github.com/mozilla/gecko-dev/blob/master/browser/components/newtab/css/activity-stream-linux.css
