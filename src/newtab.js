@@ -879,8 +879,8 @@ function init() {
 	}
 }
 if (pageLoaded) {
-	document.addEventListener("DOMContentLoaded", init)
-} else {
 	init()
+} else {
+	document.addEventListener("DOMContentLoaded", init)
 }
 
