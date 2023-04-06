@@ -838,6 +838,9 @@ function bindEditBookmarkForm() {
 // https://github.com/mozilla/gecko-dev/blob/master/browser/base/content/contentTheme.js
 const prefersDarkQuery = window.matchMedia("(prefers-color-scheme: dark)")
 function updateTheme() {
+	if (!isFirefox) {
+		return
+	}
 	browser.theme.getCurrent().then(function(theme){
 		var isDarkMode = prefersDarkQuery.matches
 		document.body.setAttribute("lwt-newtab", "true")
