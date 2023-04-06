@@ -18,9 +18,9 @@ A simple list of the most recent bookmarks, along with the ability to search for
 
 Run `sh ./build.sh` to generate a `firefox.xpi` and a `chrome.crx`.
 
-You can easily load the `src/` as an unpackge addon in Firefox.
+You can easily load the `src/` as an unpacked addon in Firefox.
 
-To test in Chrome, you will need to modify the `manifest.json` before loading it as an unpackage extension. First run `python3 buildchrome.py` to modify the `manifest.json`.
+To test in Chrome, you will need to modify the `manifest.json` before loading it as an unpacked extension. First run `python3 buildchrome.py` to modify the `manifest.json`.
 
 ![](screenshots/ChromeWithFavicons.png)
 
