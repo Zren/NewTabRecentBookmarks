@@ -433,17 +433,20 @@ function clearChildrenOf(parent) {
 	}
 }
 
-function updateSearchGroup(bookmarks) {
+function updateSearchGroup(bookmarks, doneSearching) {
 	var kanban = document.querySelector('#kanban')
 	var groupDiv = getGroup('search')
-	if (bookmarks.length >= 1) {
-		kanban.classList.add('searching')
-	} else {
+	if (doneSearching) {
 		kanban.classList.remove('searching')
+	} else {
+		kanban.classList.add('searching')
 	}
 	var placeList = groupDiv.querySelector('.place-list')
 	clearChildrenOf(placeList)
 	generatePlaceList(placeList, bookmarks)
+}
+function clearSearchGroup() {
+	updateSearchGroup([], true)
 }
 
 function generateSearchGroup() {
@@ -451,7 +454,7 @@ function generateSearchGroup() {
 		id: 'search',
 		title: 'Search'
 	}, [])
-	updateSearchGroup([])
+	clearSearchGroup()
 }
 
 function getGroup(groupId) {
@@ -470,7 +473,7 @@ function doSearch() {
 			query: query,
 		}, updateSearchGroup)
 	} else {
-		updateSearchGroup([])
+		clearSearchGroup()
 	}
 }
 var debouncedDoSearch = debounce(doSearch, 600)
