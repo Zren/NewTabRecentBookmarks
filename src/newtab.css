@@ -72,8 +72,20 @@ button.danger {
 }
 .search-wrapper input#newtab-search-text {
 	--newtab-search-icon: url(icons/bookmark.svg);
-	background-image: var(--newtab-search-icon);
+/*	background-image: var(--newtab-search-icon);*/
+	background-image: none;
 }
+#search-bookmark-icon {
+	-moz-context-properties: fill;
+	fill: var(--newtab-search-icon-color);
+	height: 100%;
+	position: absolute;
+	width: 24px;
+	height: 24px;
+	left: 13px;
+	top: 12px;
+}
+
 .search-wrapper .search-padder,
 .search-wrapper #open-options-page {
 	width: 48px;
@@ -87,8 +99,6 @@ button.danger {
 	background-size: 16px 16px;
 	border: 0;
 	border-radius: 3px;
-	-moz-context-properties: fill;
-	fill: var(--newtab-search-icon-color);
 	inset-inline-end: 0;
 }
 #open-options-page:focus,
@@ -285,8 +295,12 @@ body {
 }
 body[lwt-newtab-brighttext] {
 	--newtab-button-hover-background: #444444;
+	--newtab-search-icon-color: #444444;
 }
 body[lwt-newtab-brighttext] .search-wrapper .search-button,
 body[lwt-newtab-brighttext] #open-options-page {
 	filter: invert(1);
+}
+body[lwt-newtab-brighttext] #search-bookmark-icon {
+	filter: invert(1) brightness(0.65);
 }
