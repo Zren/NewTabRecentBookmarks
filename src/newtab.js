@@ -12,6 +12,11 @@ var cache = {
 	pinnedFolders: [],
 	faviconHostnameList: [],
 }
+const configDefaults = {
+	recentBookmarksReversed: true,
+	bookmarkFoldersReversed: false,
+}
+var config = configDefaults
 
 // https://stackoverflow.com/questions/24004791/can-someone-explain-the-debounce-function-in-javascript
 function debounce(func, wait, immediate) {
@@ -386,7 +391,9 @@ function generateGroup(group, bookmarks) {
 }
 
 function generateFolderGroup(folderBookmark, callback, bookmarks) {
-	bookmarks.reverse()
+	if (config.bookmarkFoldersReversed) {
+		bookmarks.reverse()
+	}
 	generateGroup(folderBookmark, bookmarks)
 	callback()
 }
@@ -419,6 +426,9 @@ function generateRecentGroup() {
 	generateGroupDiv('recent')
 	var numBookmarks = 36 // 4 * 8
 	browserAPI.bookmarks.getRecent(numBookmarks, function(bookmarks){
+		if (!config.recentBookmarksReversed) {
+			bookmarks.reverse()
+		}
 		generateGroup({
 			id: 'recent',
 			title: 'Recent'
@@ -601,10 +611,22 @@ function onStorageChange(changes, area) {
 	// console.log('onStorageChange', changes, area)
 	if (typeof changes.pinnedFolders !== 'undefined') {
 		updatePinnedFolderGroups()
+	} else if (typeof changes.recentBookmarksReversed !== 'undefined') {
+		config.recentBookmarksReversed = changes.recentBookmarksReversed.newValue
+		updateAllGroups()
+	} else if (typeof changes.bookmarkFoldersReversed !== 'undefined') {
+		config.bookmarkFoldersReversed = changes.bookmarkFoldersReversed.newValue
+		updateAllGroups()
 	}
 }
 
 function loadConfig() {
+	chrome.storage.local.get(configDefaults, function(items) {
+		config = items
+	})
+}
+
+function loadPinnedFolders() {
 	updatePinnedFolderGroups()
 }
 
@@ -880,9 +902,10 @@ function init() {
 	}
 
 	updateTheme()
+	loadConfig()
 	generateSearchGroup()
 	generateRecentGroup()
-	loadConfig()
+	loadPinnedFolders()
 
 	if (!isReset) {
 		browserAPI.storage.onChanged.addListener(onStorageChange)
