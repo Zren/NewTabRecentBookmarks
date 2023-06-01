@@ -65,13 +65,36 @@ button.danger {
 }
 
 
-/* Search */
+/* Search Row */
 .search-wrapper {
-	padding: 10px 0;
+	display: flex;
+	padding: 10px;
 }
 .search-wrapper input#newtab-search-text {
 	--newtab-search-icon: url(icons/bookmark.svg);
 	background-image: var(--newtab-search-icon);
+}
+.search-wrapper .search-padder,
+.search-wrapper #open-options-page {
+	width: 48px;
+	height: 48px;
+}
+
+#open-options-page {
+	/* Firefox: url("chrome://global/skin/icons/settings.svg") */
+	background: url(icons/settings.svg) no-repeat center center;
+	background-size: auto;
+	background-size: 16px 16px;
+	border: 0;
+	border-radius: 3px;
+	-moz-context-properties: fill;
+	fill: var(--newtab-search-icon-color);
+	inset-inline-end: 0;
+}
+#open-options-page:focus,
+#open-options-page:hover {
+	background-color: rgba(12, 12, 13, 0.1);
+	cursor: pointer;
 }
 
 

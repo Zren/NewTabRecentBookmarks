@@ -642,6 +642,10 @@ function togglePinnedFolder(folderId) {
 	}
 }
 
+function openOptionsPage() {
+	browserAPI.runtime.openOptionsPage()
+}
+
 function bindSearchInput() {
 	var query = document.querySelector('input#newtab-search-text')
 	query.addEventListener('change', onQueryChange)
@@ -653,6 +657,9 @@ function bindSearchInput() {
 
 	var searchButton = document.querySelector('button#searchSubmit')
 	searchSubmit.addEventListener('click', onQueryChange)
+
+	var openOptionsPageButton = document.querySelector('button#open-options-page')
+	openOptionsPageButton.addEventListener('click', openOptionsPage)
 }
 
 function getAllFolders_visitNode(folderList, bookmark) {
