@@ -828,7 +828,7 @@ function onEditBookmarkSubmit(event){
 		console.log('updateBookmark_done', bookmark, changes, destination)
 		closeEditBookmark()
 		if (destination) {
-			updateAllGroups()
+			// full refresh in browser.bookmarks.onMoved listener
 		} else {
 			onBookmarkUpdate(bookmarkId, bookmark)
 		}
@@ -840,12 +840,6 @@ function onDeleteBookmarkClicked(event){
 	// console.log('delete', bookmarkId)
 	browserAPI.bookmarks.remove(bookmarkId, function(){
 		// console.log('onDeleteBookmark', bookmark)
-
-		// Remove elements
-		var selector = '.place-entry[data-id="' + bookmarkId + '"]'
-		document.querySelectorAll(selector).forEach(function(placeEntry){
-			placeEntry.remove()
-		})
 	})
 	closeEditBookmark()
 }
@@ -863,6 +857,31 @@ function bindEditBookmarkForm() {
 	var cancelButton = editBookmarkForm.querySelector('.actions .cancel')
 	cancelButton.addEventListener('click', closeEditBookmark)
 	editBookmarkForm.addEventListener('submit', onEditBookmarkSubmit)
+}
+
+// https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/bookmarks/onCreated
+function onBookmarkCreated(bookmarkId, bookmark) {
+	updateAllGroups()
+}
+
+// https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/bookmarks/onRemoved
+function onBookmarkRemoved(bookmarkId, removeInfo) {
+	// Remove elements
+	var selector = '.place-entry[data-id="' + bookmarkId + '"]'
+	document.querySelectorAll(selector).forEach(function(placeEntry){
+		placeEntry.remove()
+	})
+}
+
+// https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/bookmarks/onMoved
+function onBookmarkMoved(bookmarkId, moveInfo) {
+	updateAllGroups()
+}
+
+function bindBookmarkEvents() {
+	browserAPI.bookmarks.onCreated.addListener(onBookmarkCreated)
+	browserAPI.bookmarks.onRemoved.addListener(onBookmarkRemoved)
+	browserAPI.bookmarks.onMoved.addListener(onBookmarkMoved)
 }
 
 // We can't use @media (prefers-color-scheme: dark) CSS for some reason,
@@ -908,6 +927,7 @@ function init() {
 	loadPinnedFolders()
 
 	if (!isReset) {
+		bindBookmarkEvents()
 		browserAPI.storage.onChanged.addListener(onStorageChange)
 		bindSearchInput()
 		bindEditBookmarkForm()
