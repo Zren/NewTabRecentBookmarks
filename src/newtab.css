@@ -286,3 +286,7 @@ body {
 body[lwt-newtab-brighttext] {
 	--newtab-button-hover-background: #444444;
 }
+body[lwt-newtab-brighttext] .search-wrapper .search-button,
+body[lwt-newtab-brighttext] #open-options-page {
+	filter: invert(1);
+}
