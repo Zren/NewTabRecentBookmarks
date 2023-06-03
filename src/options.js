@@ -1,6 +1,6 @@
 const configDefaults = {
 	recentBookmarksReversed: true,
-	bookmarkFoldersReversed: true,
+	bookmarkFoldersReversed: false,
 }
 
 function restoreOptions() {
