@@ -1,7 +1,7 @@
 {
 	"manifest_version": 2,
 	"name": "New Tab Recent Bookmarks",
-	"version": "8.0",
+	"version": "8.1",
 	"description": "Show pinned folders and recent bookmarks on new tab page.",
 	"homepage_url": "https://github.com/Zren/NewTabRecentBookmarks",
 	"icons": {
