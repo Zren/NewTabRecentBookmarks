@@ -1,5 +1,7 @@
 // https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API
 
+// Inherits config from newtab.js
+
 var draggedGroup = null
 var draggedEntry = null
 
@@ -167,10 +169,17 @@ function dropEntry(targetEntry) {
 		}
 		var isOutOfSync = false
 		if (targetBookmark.parentId == targetGroupId) {
-			// We want to display the draggedBookmark above the targetBookmark.
-			// Since the bookmarks are sorted in reverse order, we tell the
-			// API to place it after the targetBookmark.
-			destination.index = targetBookmark.index+1
+			console.log('config', config)
+			if (config && config.bookmarkFoldersReversed) {
+				// We want to display the draggedBookmark above the targetBookmark.
+				// Since the bookmarks are sorted in reverse order, we tell the
+				// API to place it after the targetBookmark.
+				destination.index = targetBookmark.index+1
+			} else {
+				// When bookmarks are sorted in normal order, push everything else
+				// down and take the index of the dropped location.
+				destination.index = targetBookmark.index
+			}
 		} else {
 			// Current tab is out of sync, targetBookmark has moved folders.
 			// We'll place the bookmark at the bottom of the target group.
