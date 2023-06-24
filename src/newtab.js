@@ -875,6 +875,7 @@ function onBookmarkRemoved(bookmarkId, removeInfo) {
 
 // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/bookmarks/onMoved
 function onBookmarkMoved(bookmarkId, moveInfo) {
+	// console.log('onBookmarkMoved', bookmarkId, moveInfo)
 	updateAllGroups()
 }
 
