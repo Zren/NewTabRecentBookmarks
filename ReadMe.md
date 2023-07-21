@@ -20,7 +20,9 @@ Run `sh ./build.sh` to generate a `firefox.xpi` and a `chrome.crx`.
 
 You can easily load the `src/` as an unpacked addon in Firefox.
 
-To test in Chrome, you will need to modify the `manifest.json` before loading it as an unpacked extension. First run `python3 buildchrome.py` to modify the `manifest.json`.
+To test in Chrome, you will need to modify the `manifest.json` before loading it as an unpacked extension. First run `python3 preparebuild_chrome.py` to modify the `manifest.json`.
+
+Run `git checkout src/manifest.json` to reset the file before commiting changes with it.
 
 ![](screenshots/ChromeWithFavicons.png)
 
