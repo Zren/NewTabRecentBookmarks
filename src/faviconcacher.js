@@ -1,3 +1,5 @@
+// Version 1
+
 var isFirefox = typeof browser !== 'undefined'
 var browserAPI = chrome
 

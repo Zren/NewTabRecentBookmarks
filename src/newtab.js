@@ -565,7 +565,9 @@ function fetchFavicons(callback) {
 				stylesheet.insertRule(rule, stylesheet.cssRules.length)
 			}
 		}
-		callback()
+		if (callback) {
+			callback()
+		}
 	})
 }
 
