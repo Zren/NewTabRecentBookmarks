@@ -5,8 +5,10 @@ A simple list of the most recent bookmarks, along with the ability to search for
 * **Firefox:** https://addons.mozilla.org/en-CA/firefox/addon/new-tab-recent-bookmarks/
 
 ![](screenshots/FirefoxWithFavicons.png)
-![](screenshots/SearchAndPinFolder.png)
-![](screenshots/TallWindow.png)
+![](screenshots/ChromeSearchBookmarkPinFolder.png)
+![](screenshots/ChromeEditBookmarkButton.png)
+![](screenshots/ChromeEditBookmarkModal.png)
+![](screenshots/ChromeSettings.png)
 
 ## Permissions
 
