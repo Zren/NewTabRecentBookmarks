@@ -1,5 +1,5 @@
 // Firefox doesn't support favicon urls (https://bugzilla.mozilla.org/show_bug.cgi?id=1315616)
-// Chrome does support favicon urls (chrome://favicon).
+// Chrome does support favicon urls (https://developer.chrome.com/docs/extensions/mv3/favicon/).
 // Chrome doesn't return promises, and requires a callback parameter.
 // Chrome also doesn't support 'bookmark.type'
 var browserAPI = chrome
@@ -147,12 +147,22 @@ function detectFolder(bookmark) {
 	)
 }
 
+function getFaviconURL(url) {
+	//--- Chrome Manifest v2
+	// return 'chrome://favicon/' + encodeURI(url)
+	//--- Chrome Manifest v3
+	// https://developer.chrome.com/docs/extensions/mv3/favicon/
+	const faviconUrl = new URL(chrome.runtime.getURL('/_favicon/'))
+	faviconUrl.searchParams.set('pageUrl', url)
+	faviconUrl.searchParams.set('size', '32')
+	return faviconUrl.toString()
+}
 function updatePlaceIcon(icon, bookmark, entryLink) {
 	icon.className = 'place-icon icon'
 	if (detectBookmark(bookmark)) {
 		icon.classList.add('icon-bookmark-overlay')
 		if (isChrome) {
-			icon.style.backgroundImage = 'url(chrome://favicon/' + encodeURI(bookmark.url) + ')'
+			icon.style.backgroundImage = 'url(' + getFaviconURL(bookmark.url) + ')'
 		} else {
 			var iconBgColor = hslFromHostname(entryLink.hostname)
 			icon.style.backgroundColor = iconBgColor

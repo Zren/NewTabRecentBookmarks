@@ -6,6 +6,8 @@ import json
 with open('./src/manifest.json', 'r') as fin:
 	manifest = json.load(fin)
 
+manifest['manifest_version'] = 3
+
 if 'background' in manifest:
 	del manifest['background']
 
@@ -15,8 +17,8 @@ if 'chrome_settings_overrides' in manifest:
 if 'tabs' in manifest['permissions']:
 	manifest['permissions'].remove('tabs')
 
-if 'chrome://favicon/' not in manifest['permissions']:
-	manifest['permissions'].append('chrome://favicon/')
+if 'favicon' not in manifest['permissions']:
+	manifest['permissions'].append('favicon')
 
 with open('./src/manifest.json', 'w') as fout:
 	json.dump(manifest, fout, indent='\t')
