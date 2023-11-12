@@ -2,6 +2,7 @@
 
 A simple list of the most recent bookmarks, along with the ability to search for a bookmark folder and pin it. Pinned folders display their bookmarks in the descending chronological order as well.
 
+* **Chrome:** https://chrome.google.com/webstore/detail/new-tab-recent-bookmarks/codfiogcpnbbeidoaffdmmepkbikljib
 * **Firefox:** https://addons.mozilla.org/en-CA/firefox/addon/new-tab-recent-bookmarks/
 
 ![](screenshots/FirefoxWithFavicons.png)
